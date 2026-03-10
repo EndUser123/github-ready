@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.2] - 2026-03-10
+
+### Added
+- Explicit CI/CD workflow template in skill documentation
+- Clear NO Codecov instruction to prevent external service uploads
+- Local coverage reporting only (--cov-report=term)
+
+### Changed
+- Updated skill to prevent future Codecov integration confusion
+
 ## [5.5.1] - 2026-03-10
 
 ### Added
