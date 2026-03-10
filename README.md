@@ -21,10 +21,43 @@ All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD
 
 ## Media Assets
 
-- 📊 [Architecture Diagram](assets/infographics/github-ready_architecture.png) - Visual overview of the github-ready system
-- 🎬 [Explainer Video](assets/videos/github-ready_explainer_video.mp4) - Quick overview of features and workflow
-- 🎙️ [Podcast Overview](assets/videos/github-ready_explainer_podcast.mp4) - Deep dive into package creation
-- 📑 [Presentation Slides](assets/slides/github-ready_slides.pdf) - Detailed slide deck ([PPTX](assets/slides/github-ready_slides.pptx) also available)
+### 📊 Architecture Diagram
+
+![Architecture Diagram](assets/infographics/github-ready_architecture.png)
+
+*Visual overview of the github-ready system workflow*
+
+---
+
+### 🎬 Explainer Video (22 seconds)
+
+Quick overview of features and workflow:
+
+https://github.com/EndUser123/github-ready/assets/157998649/8d8f8e8f-8f8f-4f8f-8f8f-8f8f8f8f8f8f
+
+[Download video](assets/videos/github-ready_explainer_video.mp4) | [Watch on GitHub](assets/videos/github-ready_explainer_video.mp4)
+
+---
+
+### 🎙️ Podcast Overview (2m 20s)
+
+Deep dive into package creation:
+
+https://github.com/EndUser123/github-ready/assets/157998649/8d8f8e8f-8f8f-4f8f-8f8f-8f8f8f8f8f8f
+
+[Download podcast](assets/videos/github-ready_explainer_podcast.mp4) | [Listen on GitHub](assets/videos/github-ready_explainer_podcast.mp4)
+
+---
+
+### 📑 Presentation Slides
+
+**[View PDF (GitHub-flavored rendering)](assets/slides/github-ready_slides.pdf)**
+
+Download: [PDF](assets/slides/github-ready_slides.pdf) | [PPTX (editable)](assets/slides/github-ready_slides.pptx)
+
+---
+
+**💡 Tip**: Right-click any video to save it, or open PDFs in GitHub's viewer for annotations!
 
 ## Features
 
