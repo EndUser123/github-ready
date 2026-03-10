@@ -1,6 +1,10 @@
 # github-ready
 
-> Universal Package Creator & Portfolio Polisher v5.5
+![Version](https://img.shields.io/badge/version-5.5.1-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-purple.svg)
+
+> Universal Package Creator & Portfolio Polisher v5.5.1
 
 Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, and media artifacts.
 
