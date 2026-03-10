@@ -31,45 +31,31 @@ All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD
 
 ### 🎬 Explainer Video (22 seconds)
 
-Quick overview of features and workflow:
+Quick overview of features and workflow
 
-<div align="center">
-  <video src="assets/videos/github-ready_explainer_video.mp4" width="640" height="360" controls></video>
-</div>
+[![Watch Video](https://img.shields.io/badge/🎬-Watch%20Video-blue?style=for-the-badge)](assets/videos/github-ready_explainer_video.mp4)
 
-[⬇️ Download video](assets/videos/github-ready_explainer_video.mp4) | [🔗 Direct link](assets/videos/github-ready_explainer_video.mp4)
+**[⬇️ Download video (871 KB)](assets/videos/github-ready_explainer_video.mp4)** | [🔗 Direct link](assets/videos/github-ready_explainer_video.mp4)
 
 ---
 
 ### 🎙️ Podcast Overview (2m 20s)
 
-Deep dive into package creation:
+Deep dive into package creation
 
-<div align="center">
-  <video src="assets/videos/github-ready_explainer_podcast.mp4" width="640" height="360" controls></video>
-</div>
+[![Listen to Podcast](https://img.shields.io/badge/🎙️-Listen%20Now-purple?style=for-the-badge)](assets/videos/github-ready_explainer_podcast.mp4)
 
-[⬇️ Download podcast](assets/videos/github-ready_explainer_podcast.mp4) | [🔗 Direct link](assets/videos/github-ready_explainer_podcast.mp4)
+**[⬇️ Download podcast (34 MB)](assets/videos/github-ready_explainer_podcast.mp4)** | [🔗 Direct link](assets/videos/github-ready_explainer_podcast.mp4)
 
 ---
 
 ### 📑 Presentation Slides
 
-<div align="center">
-  <p>
-    <a href="assets/slides/github-ready_slides.pdf">
-      <img src="assets/slides/github-ready_slides.pdf" alt="Presentation Slides" width="600">
-    </a>
-  </p>
-</div>
-
-**[📄 View PDF in GitHub viewer](assets/slides/github-ready_slides.pdf)**
-
-Download: [PDF](assets/slides/github-ready_slides.pdf) | [PPTX (editable)](assets/slides/github-ready_slides.pptx)
+**[📄 View PDF in GitHub viewer](assets/slides/github-ready_slides.pdf)** | [📥 Download PDF](assets/slides/github-ready_slides.pdf) | [📊 Download PPTX (editable)](assets/slides/github-ready_slides.pptx)
 
 ---
 
-**💡 Tip**: Videos are playable inline! Click the play button or right-click to download. PDFs open in GitHub's viewer with annotation support.
+**💡 Tip**: Videos can be downloaded and played locally. PDFs open in GitHub's viewer with annotation support.
 
 ## Features
 
