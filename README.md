@@ -132,6 +132,23 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 
 ---
 
+### 🌐 Interactive Workflow Diagram
+
+**[🔗 Open Interactive Workflow Diagram →](docs/github-ready-workflow.html)**
+
+*Explore the complete package creation workflow with an interactive HTML diagram*
+
+**Features:**
+- 🎯 Visual workflow from input to GitHub-ready package
+- 📊 Detailed phase breakdown (all 7 phases)
+- 🎨 Pan and zoom support for exploring details
+- 📱 Mobile-responsive design
+- 🌐 Self-contained (opens in browser)
+
+**Download:** [📥 Save HTML](docs/github-ready-workflow.html)
+
+---
+
 ### 📑 Presentation Slides
 
 **[📄 View PDF in GitHub viewer](assets/slides/github-ready_slides.pdf)** | [📥 Download PDF](assets/slides/github-ready_slides.pdf) | [📊 Download PPTX (editable)](assets/slides/github-ready_slides.pptx)
