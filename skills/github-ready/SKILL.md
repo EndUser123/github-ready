@@ -820,7 +820,17 @@ cmd /c "mklink HookName.py P:/packages/{{package_name}}/core/hooks/HookName.py"
 **After media generation completes (PHASE 4.7), add this section to README.md:**
 
 \`\`\`markdown
-## Media Assets
+## Explainer Video
+
+[![Watch the demo with audio](assets/videos/{{package_name}}_video_poster.png)](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)
+
+> **[🎬 Watch the explainer in the browser](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)**  
+> **[⬇️ Download the MP4 directly](https://github.com/{{github_username}}/{{package_name}}/releases/download/media/{{package_name}}_explainer_pbs.mp4)**
+> *Browser playback requires GitHub Pages to be enabled for this repository.*
+
+Quick overview of features and workflow.
+
+## Additional Media Assets
 
 ### 📊 Architecture Flowchart
 
@@ -842,24 +852,6 @@ graph TB
     CI --> Output
 ```
 
-### 🌐 GitHub Pages Video
-
-**[🎨 Watch the explainer in the browser →](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)**
-
----
-
-### 🎬 Explainer Video
-
-Quick overview of features and workflow.
-
-[![Watch the demo with audio](assets/videos/{{package_name}}_video_poster.png)](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)
-
-> **[🎬 Watch the explainer in the browser](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)**  
-> **[⬇️ Download the MP4 directly](https://github.com/{{github_username}}/{{package_name}}/releases/download/media/{{package_name}}_explainer_pbs.mp4)**
-> *Browser playback requires GitHub Pages to be enabled for this repository.*
-
----
-
 ### 📑 Presentation Slides
 
 [![Slide deck preview](assets/slides/{{package_name}}_slides_preview.png)](assets/slides/{{package_name}}_slides.pdf)
@@ -875,7 +867,7 @@ Quick overview of features and workflow.
 **💡 Tip**: Use GitHub Pages for in-browser video playback. On GitHub, the PDF is the primary slide format and PPTX is the editable source.
 \`\`\`
 
-**IMPORTANT**: This Media Assets section uses GitHub-compatible markdown. Key points:
+**IMPORTANT**: This media layout uses GitHub-compatible markdown. Key points:
 - **Images**: Use standard markdown \`![alt](path)\` syntax - renders inline
 - **Videos**: Do not rely on HTML \`<video>\` tags in \`README.md\`
 - **Recommended pattern**: Link a verified still frame such as \`assets/videos/{{package_name}}_video_poster.png\` in \`README.md\` to \`https://{{github_username}}.github.io/{{package_name}}/docs/video.html\`
