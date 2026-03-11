@@ -568,6 +568,119 @@ ln -sf P:/packages/{{package_name}}/core/hooks/HookName.py HookName.py
 - ❌ Don't look for hook symlinks in `~/.claude/plugins/` - they go in `P:/.claude/hooks/`
 - ❌ Don't forget to update symlinks after brownfield conversion - check for `src/` paths
 
+### Multiple Skills or Hooks
+
+Some plugins have **multiple skills** or **multiple hook files**. In these cases, you need **one junction per skill** and **one symlink per hook file**.
+
+#### Multiple Skills (One Junction Per Skill)
+
+If your plugin has multiple skills in `skills/`:
+
+```
+my-plugin/
+├── skills/
+│   ├── skill-a/SKILL.md  → Junction 1
+│   ├── skill-b/SKILL.md  → Junction 2
+│   └── skill-c/SKILL.md  → Junction 3
+```
+
+Create **one junction for each skill**:
+
+```powershell
+# Example: Plugin with 3 skills
+New-Item -ItemType Junction -Path "P:\.claude\skills\skill-a" -Target "P:\packages\my-plugin\skills\skill-a"
+New-Item -ItemType Junction -Path "P:\.claude\skills\skill-b" -Target "P:\packages\my-plugin\skills\skill-b"
+New-Item -ItemType Junction -Path "P:\.claude\skills\skill-c" -Target "P:\packages\my-plugin\skills\skill-c"
+```
+
+**macOS/Linux equivalent:**
+```bash
+ln -s /path/to/packages/my-plugin/skills/skill-a ~/.claude/skills/skill-a
+ln -s /path/to/packages/my-plugin/skills/skill-b ~/.claude/skills/skill-b
+ln -s /path/to/packages/my-plugin/skills/skill-c ~/.claude/skills/skill-c
+```
+
+#### Multiple Hook Files (One Symlink Per File)
+
+If your plugin has multiple hook files in `core/hooks/`:
+
+```
+my-plugin/
+└── core/
+    └── hooks/
+        ├── hook1.py  → Symlink 1
+        ├── hook2.py  → Symlink 2
+        └── hook3.py  → Symlink 3
+```
+
+Create **one symlink for each hook file**:
+
+```powershell
+# Symlinks go in P:/.claude/hooks/ (NOT ~/.claude/plugins/)
+cd P:/.claude/hooks
+
+cmd /c "mklink hook1.py P:\packages\my-plugin\core\hooks\hook1.py"
+cmd /c "mklink hook2.py P:\packages\my-plugin\core\hooks\hook2.py"
+cmd /c "mklink hook3.py P:\packages\my-plugin\core\hooks\hook3.py"
+```
+
+**macOS/Linux equivalent:**
+```bash
+cd ~/.claude/hooks
+ln -sf /path/to/packages/my-plugin/core/hooks/hook1.py hook1.py
+ln -sf /path/to/packages/my-plugin/core/hooks/hook2.py hook2.py
+ln -sf /path/to/packages/my-plugin/core/hooks/hook3.py hook3.py
+```
+
+#### Both Skills AND Hooks
+
+If your plugin has **both skills and hooks**, create both junctions and symlinks:
+
+```
+my-plugin/
+├── skills/
+│   ├── skill-a/SKILL.md  → Junction to skills/skill-a/
+│   └── skill-b/SKILL.md  → Junction to skills/skill-b/
+└── core/
+    └── hooks/
+        ├── hook1.py  → Symlink in P:/.claude/hooks/
+        └── hook2.py  → Symlink in P:/.claude/hooks/
+```
+
+**Complete setup:**
+```powershell
+# 1. Create junctions for skills (one per skill)
+New-Item -ItemType Junction -Path "P:\.claude\skills\skill-a" -Target "P:\packages\my-plugin\skills\skill-a"
+New-Item -ItemType Junction -Path "P:\.claude\skills\skill-b" -Target "P:\packages\my-plugin\skills\skill-b"
+
+# 2. Create symlinks for hook files (one per file)
+cd P:/.claude/hooks
+cmd /c "mklink hook1.py P:\packages\my-plugin\core\hooks\hook1.py"
+cmd /c "mklink hook2.py P:\packages\my-plugin\core\hooks\hook2.py"
+```
+
+**Real-world example: github-ready package**
+
+The github-ready package has:
+- 1 skill: `skills/github-ready/SKILL.md`
+- 0 hooks (no hook files)
+
+Setup:
+```powershell
+# Just one junction needed
+New-Item -ItemType Junction -Path "P:\.claude\skills\package" -Target "P:\packages\github-ready\skills\github-ready"
+```
+
+**Summary table:**
+
+| Plugin has... | Link type | How many? | Where? |
+|---------------|-----------|-----------|--------|
+| 1 skill | Junction | 1 | `P:/.claude/skills/skill-name` |
+| 3 skills | Junctions | 3 (one per skill) | `P:/.claude/skills/skill-a`, `skill-b`, `skill-c` |
+| 1 hook file | Symlink | 1 | `P:/.claude/hooks/hook.py` |
+| 5 hook files | Symlinks | 5 (one per file) | `P:/.claude/hooks/hook1.py` through `hook5.py` |
+| 2 skills + 3 hooks | Both | 2 junctions + 3 symlinks | Skills → `P:/.claude/skills/`, Hooks → `P:/.claude/hooks/` |
+
 ### For Python Libraries (`PACKAGE_TYPE=python-library`)
 
 **Steps:**
