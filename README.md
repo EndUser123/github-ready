@@ -13,9 +13,11 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 
 ### 📊 Architecture Diagram
 
+**[🎨 View Interactive Architecture Diagram →](docs/github-ready-architecture.html)**
+
 ![Architecture Diagram](assets/infographics/github-ready_architecture.png)
 
-*Visual overview of the github-ready system workflow*
+*Static overview • Click link above for interactive version with Mermaid flowchart*
 
 ---
 
