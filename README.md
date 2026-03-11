@@ -181,24 +181,6 @@ Quick overview of features and workflow
 
 ---
 
-**💡 Usage Tip**: Videos can be played directly in GitHub. PDFs open in GitHub's built-in viewer. Slides (PPTX) are editable for customizations.
-- 🌐 Self-contained HTML (opens in browser, no dependencies)
-
-**Quick start:**
-1. Click the link above to open in your browser
-2. Explore the workflow diagram (drag to pan, scroll to zoom)
-3. Click through phase cards to see what each step does
-
-**Download:** [📥 Save HTML for offline viewing](docs/github-ready-workflow.html)
-
----
-
-### 📑 Presentation Slides
-
-**[📄 View PDF in GitHub viewer](assets/slides/github-ready_slides.pdf)** | [📥 Download PDF](assets/slides/github-ready_slides.pdf) | [📊 Download PPTX (editable)](assets/slides/github-ready_slides.pptx)
-
----
-
 **💡 Tip**: PDFs open in GitHub's viewer with annotation support. PPTX files are editable for customizations.
 
 ## Package Types
