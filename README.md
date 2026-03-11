@@ -22,6 +22,17 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 /github-ready --dry-run myproject
 ```
 
+## Explainer Video
+
+[![Watch the demo with audio](assets/videos/debug_screenshot.png)](https://enduser123.github.io/github-ready/docs/video.html)
+
+> **[🎬 Watch the explainer in the browser](https://enduser123.github.io/github-ready/docs/video.html)**  
+> **[⬇️ Download the MP4 directly](https://github.com/EndUser123/github-ready/releases/download/media/github_ready_explainer_pbs.mp4)**
+> *Browser playback requires GitHub Pages to be enabled for this repository.*
+
+**Quick overview**: Features, workflow, and automated portfolio polish.
+*Runtime should match the exported NotebookLM asset; update this text only after verifying the final file duration.*
+
 ## What It Generates
 
 - 🎯 **Intelligent Detection**: Automatically detects package type and requirements from project structure
@@ -123,22 +134,9 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 - ❌ Don't confuse skills (`P:/.claude/skills/`) with plugins (`~/.claude/plugins/`)
 - ❌ Don't forget to update symlinks after brownfield conversion - check for `src/` paths
 
-## Media Assets
+## Additional Media Assets
 
 > 💡 **Note**: These assets were generated using NotebookLM integration and automatically published to GitHub Releases for easy access.
-
-### 🎙️ Explainer Video
-
-[![Watch the demo with audio](assets/videos/debug_screenshot.png)](https://enduser123.github.io/github-ready/docs/video.html)
-
-> **[🎬 Watch the explainer in the browser](https://enduser123.github.io/github-ready/docs/video.html)**  
-> **[⬇️ Download the MP4 directly](https://github.com/EndUser123/github-ready/releases/download/media/github_ready_explainer_pbs.mp4)**
-> *Browser playback requires GitHub Pages to be enabled for this repository.*
-
-**Quick overview**: Features, workflow, and automated portfolio polish.
-*Runtime should match the exported NotebookLM asset; update this text only after verifying the final file duration.*
-
----
 
 ### 📊 Architecture Flowchart
 
