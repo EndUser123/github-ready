@@ -868,14 +868,6 @@ Quick overview of features and workflow.
 
 ---
 
-### 🎙️ Podcast Overview
-
-Deep dive into package creation.
-
-**[⬇️ Download podcast](assets/videos/{{package_name}}_explainer_podcast.mp4)** | [🔗 Direct link](assets/videos/{{package_name}}_explainer_podcast.mp4)
-
----
-
 ### 📑 Presentation Slides
 
 **[📄 View Slides (PDF)](assets/slides/{{package_name}}_slides.pdf)**  
@@ -897,12 +889,11 @@ Deep dive into package creation.
 - **PDFs**: Use direct markdown links - opens in GitHub's built-in PDF viewer
 - **Badges**: Use shields.io badges for visual appeal and clickability
 - **GitHub Pages**: Enable Pages from \`main\` root so \`docs/video.html\` is publicly available
-- **Durations**: Never hardcode video or podcast runtimes. Measure the exported file first or omit the duration label entirely
+- **Durations**: Never hardcode video runtimes. Measure the exported file first or omit the duration label entirely
 
 **Runtime verification examples:**
 ```bash
 ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 assets/videos/{{package_name}}_explainer_pbs.mp4
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 assets/videos/{{package_name}}_explainer_podcast.mp4
 ```
 
 **For brownfield conversions**: See \`references/brownfield-conversion.md\` for README update instructions (migration notice, rollback instructions, updated usage examples).
@@ -1058,7 +1049,7 @@ meta_review_summary = {
 - Generates visual assets for portfolio-quality packages
 - Creates banner images for GitHub social preview
 - Builds static overview images plus GitHub-safe Mermaid flowcharts
-- Produces concise technical explainer videos focused on architecture, workflow, and outputs
+- Produces one concise technical explainer video focused on architecture, workflow, and outputs
 - Creates a dedicated HTML video player page for GitHub Pages playback
 - Verifies asset quality with vision API before acceptance
 
