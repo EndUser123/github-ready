@@ -23,9 +23,9 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 
 Quick overview of features and workflow
 
-[![Watch Video](https://img.shields.io/badge/🎬-Watch_Video-blue?style=for-the-badge)](assets/videos/github-ready_explainer_video.mp4)
+[![Watch the video](assets/infographics/github-ready_architecture.png)](https://notebooklm.google.com "Full video overview on NotebookLM")
 
-**⬇️ Download video (871 KB)** | 🔗 Direct link
+**📺 Video Overview** | **⬇️ Download MP4**
 
 ---
 
