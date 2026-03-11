@@ -1524,7 +1524,6 @@ SOLUTION (60s): Introduce package, show key features (AFTER)
 |---------|---------|-------------|-------|
 | **System Overview** | High-level architecture and outputs | `docs/diagrams/system_overview.mmd` | Mermaid flowchart |
 | **Workflow** | Phase-by-phase pipeline view | `docs/diagrams/workflow.mmd` | Mermaid flowchart |
-| **Optional Technical Detail** | Lower-level system detail | `docs/diagrams/c4_*.mmd` | Mermaid C4, only if needed |
 
 **Why this style:**
 - **Editable**: Text-based → easy to update alongside code
@@ -1561,7 +1560,7 @@ graph TB
 ```
 ```
 
-**Duration**: ~1 minute (all 3 diagrams)
+**Duration**: ~1 minute (both flowcharts)
 
 **Auto-skip conditions:**
 - Mermaid diagrams already exist in `docs/diagrams/`
@@ -1606,7 +1605,7 @@ graph TB
 
 **Objective**: Generate a beautiful, interactive HTML diagram for portfolio showcasing and documentation.
 
-**When**: Runs automatically after C4 diagrams are created.
+**When**: Runs automatically after the system overview flowcharts are created.
 
 **What this does:**
 - Creates a self-contained HTML file with interactive Mermaid flowchart
@@ -1656,11 +1655,11 @@ Skill(skill="visual-explainer:generate-web-diagram",
 The HTML diagram link should be added to the README Media Assets section:
 
 ```markdown
-### 📊 Architecture Diagram
+### 📊 Architecture Flowchart
 
 **[🎨 View Interactive Architecture Diagram →](docs/{package}-architecture.html)**
 
-![Architecture Diagram](assets/infographics/{package}_architecture.png)
+![Architecture Flowchart Overview](assets/infographics/{package}_architecture.png)
 
 *Static overview • Click link above for interactive version with Mermaid flowchart*
 ```
