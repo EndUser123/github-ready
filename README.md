@@ -168,16 +168,60 @@ Quick overview of features and workflow
 
 ---
 
-### 📐 C4 Technical Diagrams (Mermaid)
+### 📐 System Architecture (C4 Diagrams)
 
-**Interactive** (HTML): See links above
+#### System Context
 
-**Editable source** (text-based):
-- [System Context (C4 Level 1)](docs/diagrams/c4_context.mmd)
-- [Containers (C4 Level 2)](docs/diagrams/c4_containers.mmd)
-- [Components (C4 Level 3)](docs/diagrams/c4_components.mmd)
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%
 
-*These Mermaid diagrams are version-controllable and render natively on GitHub*
+C4Context
+    title System Context - github-ready Package Creator
+
+    Person(user, "Package Developer", "Creates packages using /github-ready command")
+
+    System(github_ready, "github-ready", "Universal Package Creator & Portfolio Polisher")
+
+    System_Bnd(gitHub, "GitHub", "Code hosting and collaboration platform")
+
+    System_Bnd(notebookLM, "NotebookLM", "AI-powered research and note-taking", "Optional")
+
+    Rel(user, github_ready, "Uses", "CLI command (/github-ready)")
+    Rel(github_ready, gitHub, "Publishes", "Portfolio-ready packages")
+    Rel(github_ready, notebookLM, "Generates", "Media assets (optional)")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
+```
+
+#### Container Diagram
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%
+
+C4Container
+    title Container Diagram - github-ready Architecture
+
+    Person(user, "Package Developer", "Creates packages")
+
+    Container_Bnd(cli, "CLI Interface", "Claude Code", "/github-ready command", "Skill invocation")
+
+    Container(skill, "Package Skill", "Python", "Main package creation logic", "Core processing")
+
+    Container_Ext(notebookLM, "NotebookLM", "External Service", "AI media generation", "Optional integration")
+
+    ContainerDb(localFiles, "Package Files", "File System", "Source code, configs, docs")
+
+    Rel(user, cli, "Invokes")
+    Rel(cli, skill, "Executes")
+    Rel(skill, localFiles, "Reads", "Package structure")
+    Rel(skill, localFiles, "Writes", "Generated artifacts")
+    Rel(skill, notebookLM, "Uploads sources", "For media generation")
+    Rel(notebookLM, skill, "Returns", "Generated assets")
+
+    UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="2")
+```
+
+*Editable source files:* [c4_context.mmd](docs/diagrams/c4_context.mmd) | [c4_containers.mmd](docs/diagrams/c4_containers.mmd) | [c4_components.mmd](docs/diagrams/c4_components.mmd)
 
 ---
 
