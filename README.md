@@ -131,9 +131,9 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 
 Quick overview of features and workflow
 
-[![Watch Video](https://img.shields.io/badge/🎬-Download%20Video-33MB-blue?style=for-the-badge)](assets/videos/github_ready_explainer_pbs.mp4)
+<video src="https://github.com/EndUser123/github-ready/releases/download/media/github_ready_explainer_pbs.mp4" controls width="100%" style="max-width: 730px; margin: 10px 0; border-radius: 6px;"></video>
 
-*Note: GitHub doesn't support embedded video playback in READMEs. Click to download, or view the interactive HTML diagram below for a visual overview.*
+**Alternative link:** [Download video (33MB)](https://github.com/EndUser123/github-ready/releases/download/media/github_ready_explainer_pbs.mp4)
 
 ---
 
