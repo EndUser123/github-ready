@@ -33,6 +33,21 @@ All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD
 
 Quick overview of features and workflow
 
+**To enable embedded video playback on GitHub:**
+1. Open this README in GitHub's web editor
+2. Drag and drop `assets/videos/github-ready_explainer_video.mp4` into the editor
+3. Copy the resulting user-images CDN link
+4. Replace `YOUR_USER_ID` and `VIDEO_ID` in the video tag below
+5. Delete the badge link
+
+Once uploaded, embedded video will appear here:
+
+```html
+<video src="https://user-images.githubusercontent.com/YOUR_USER_ID/VIDEO_ID/github-ready_explainer_video.mp4" controls="controls" style="max-width: 730px; margin: 10px 0;">
+</video>
+```
+
+*Current fallback (download required):*
 [![Watch Video](https://img.shields.io/badge/🎬-Watch%20Video-blue?style=for-the-badge)](assets/videos/github-ready_explainer_video.mp4)
 
 **[⬇️ Download video (871 KB)](assets/videos/github-ready_explainer_video.mp4)** | [🔗 Direct link](assets/videos/github-ready_explainer_video.mp4)
@@ -43,6 +58,21 @@ Quick overview of features and workflow
 
 Deep dive into package creation
 
+**To enable embedded video playback on GitHub:**
+1. Open this README in GitHub's web editor
+2. Drag and drop `assets/videos/github-ready_explainer_podcast.mp4` into the editor
+3. Copy the resulting user-images CDN link
+4. Replace `YOUR_USER_ID` and `VIDEO_ID` in the video tag below
+5. Delete the badge link
+
+Once uploaded, embedded video will appear here:
+
+```html
+<video src="https://user-images.githubusercontent.com/YOUR_USER_ID/VIDEO_ID/github-ready_explainer_podcast.mp4" controls="controls" style="max-width: 730px; margin: 10px 0;">
+</video>
+```
+
+*Current fallback (download required):*
 [![Listen to Podcast](https://img.shields.io/badge/🎙️-Listen%20Now-purple?style=for-the-badge)](assets/videos/github-ready_explainer_podcast.mp4)
 
 **[⬇️ Download podcast (34 MB)](assets/videos/github-ready_explainer_podcast.mp4)** | [🔗 Direct link](assets/videos/github-ready_explainer_podcast.mp4)
