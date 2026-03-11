@@ -33,7 +33,7 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 **Quick overview**: Features, workflow, and automated portfolio polish.
 *Runtime should match the exported NotebookLM asset; update this text only after verifying the final file duration.*
 
-## What It Generates
+## What github-ready Does
 
 - 🎯 **Intelligent Detection**: Automatically detects package type and requirements from project structure
 - 📦 **Multi-Format Support**: Creates Claude skills, Python libraries, and Claude Code plugins
@@ -41,8 +41,6 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 - 🎬 **Media Generation**: Creates banners, diagrams, explainer videos, and presentations
 - 🔍 **Code Review**: Automated quality validation before portfolio polish
 - 🔄 **Brownfield Conversion**: Converts existing Python libraries to plugins
-
-## How It Works
 
 **One command → Full intelligent pipeline:**
 
@@ -178,16 +176,6 @@ graph TB
     style Polish fill:#21262d
     style Quality fill:#21262d
 ```
-
-### 🎨 Infographic
-
-![Architecture Infographic](assets/infographics/github_ready_notebooklm.png)
-
-*Visual overview of the github-ready system architecture*
-
-**[⬇️ Download PNG](assets/infographics/github_ready_notebooklm.png)**
-
----
 
 ### 📑 Presentation Slides
 
