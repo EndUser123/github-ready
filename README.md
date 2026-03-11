@@ -240,15 +240,13 @@ C4Context
 
     System(github_ready, "github-ready", "Universal Package Creator and Portfolio Polisher")
 
-    System_Bnd(gitHub, "GitHub", "Code hosting and collaboration platform")
+    System_Ext(gitHub, "GitHub", "Code hosting and collaboration platform")
 
-    System_Bnd(notebookLM, "NotebookLM", "AI-powered research and note-taking", "Optional")
+    System_Ext(notebookLM, "NotebookLM", "AI-powered research and note-taking")
 
     Rel(user, github_ready, "Uses", "CLI command (/github-ready)")
     Rel(github_ready, gitHub, "Publishes", "Portfolio-ready packages")
     Rel(github_ready, notebookLM, "Generates", "Media assets (optional)")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
 ```
 
 #### Container Diagram
@@ -275,8 +273,6 @@ C4Container
     Rel(skill, localFiles, "Writes", "Generated artifacts")
     Rel(skill, notebookLM, "Uploads sources", "For media generation")
     Rel(notebookLM, skill, "Returns", "Generated assets")
-
-    UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="2")
 ```
 
 *Editable source files:* [c4_context.mmd](docs/diagrams/c4_context.mmd) | [c4_containers.mmd](docs/diagrams/c4_containers.mmd) | [c4_components.mmd](docs/diagrams/c4_components.mmd)

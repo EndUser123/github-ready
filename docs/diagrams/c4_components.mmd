@@ -1,4 +1,4 @@
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%
 %% C4 Component Diagram for github-ready
 %% Shows the internal structure of the main skill
 
@@ -14,8 +14,8 @@ C4Component
     Component(media, "Media Generation Module", "Python", "Creates visual assets")
     Component(cleanup, "Cleanup Module", "Python", "Removes obsolete files")
 
-    Component_Bnd(nlmCLI, "NotebookLM CLI", "External", "nlm command")
-    Component_Bnd(mermaidSkill, "Mermaid Diagrams", "External", "Skill invocation")
+    Component_Ext(nlmCLI, "NotebookLM CLI", "External", "nlm command")
+    Component_Ext(mermaidSkill, "Mermaid Diagrams", "External", "Skill invocation")
 
     Rel(detect, scaffold, "Triggers")
     Rel(scaffold, polish, "Completes structure")
@@ -24,5 +24,3 @@ C4Component
     Rel(media, nlmCLI, "Generates assets")
     Rel(media, mermaidSkill, "Creates diagrams")
     Rel(media, cleanup, "Completes workflow")
-
-    UpdateLayoutConfig($c4ShapeInRow="3")
