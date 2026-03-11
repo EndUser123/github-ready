@@ -144,7 +144,7 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 
 ```mermaid
 graph TB
-    Start([User: /package mylib]) --> Prep[Phase 1: Diagnose & Prep]
+    Start([User: /package mylib]) --> Prep[Phase 1: Diagnose and Prep]
     Prep --> Detect[Phase 1.5: Detect Package Type]
 
     Detect --> Type{Package Type?}
