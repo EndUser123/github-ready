@@ -22,17 +22,20 @@ Create GitHub-ready Python libraries, Claude skills, and Claude Code plugins wit
 **Setup:**
 ```powershell
 # Windows (Junction - No admin required)
-New-Item -ItemType Junction -Path "P:\.claude\skills\github-ready" -Target "P:\packages\github-ready"
+# For plugins with skills: Junction to the skills/ subdirectory
+New-Item -ItemType Junction -Path "P:\.claude\skills\package" -Target "P:\packages\github-ready\skills\github-ready"
 
 # macOS/Linux (Symlink)
-ln -s /path/to/packages/github-ready ~/.claude/skills/github-ready
+ln -s /path/to/packages/github-ready/skills/github-ready ~/.claude/skills/package
 ```
 
 **Key points:**
 - ✅ Edit in `P:/packages/github-ready`, changes work immediately
 - ✅ No reinstallation required - skills auto-discover from `P:/.claude/skills/`
 - ✅ Perfect for active development
-- ✅ Junction the entire directory (not individual files)
+- ✅ Junction to `skills/github-ready/` subdirectory (where SKILL.md actually lives)
+- ⚠️  **CRITICAL**: The junction target points to WHERE THE SKILL.md FILE ACTUALLY LIVES
+  - Plugin skills: `package-name/skills/skill-name/SKILL.md` → junction target: `skills/skill-name/`
 
 #### 2. HOOKS (Dev Deployment - Hook Files Only)
 
