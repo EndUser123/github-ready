@@ -134,18 +134,51 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 
 ### 🌐 Interactive Workflow Diagram
 
-**[🔗 Open Interactive Workflow Diagram →](docs/github-ready-workflow.html)**
+**[🎨 Watch Interactive Demo →](docs/github-ready-workflow.html)**
 
-*Explore the complete package creation workflow with an interactive HTML diagram*
+<details>
+<summary>📸 Preview: What you'll see</summary>
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  🚀 github-ready Workflow                                                 ║
+║  Complete Package Creation & Portfolio Polish Pipeline                    ║
+║                                                                            ║
+║  ╔═══════════════════════════════════════════════════════════════════════╗ ║
+║  ║  ╔═══╗       ╔═══╗       ╔═══╗       ╔═══╗       ╔═══╗       ╔═══╗    ║ ║
+║  ║  ║ 1 ║─────▶║ 2 ║─────▶║ 3 ║─────▶║ 4 ║─────▶║ 5 ║─────▶║ 6 ║    ║ ║
+║  ║  ║Prep║       ║Detect║    ║Build║     ║Media║    ║Polish║    ║Git ║    ║ ║
+║  ║  ╚═══╝       ╚═══╝       ╚═══╝       ╚═══╝       ╚═══╝       ╚═══╝    ║ ║
+║  ║                                                                           ║ ║
+║  ║  📊 Interactive Mermaid Flowchart:                                      ║ ║
+║  ║  • Pan and zoom to explore                                             ║ ║
+║  ║  • Click nodes for details                                             ║ ║
+║  ║  • Color-coded phases                                                   ║ ║
+║  ╚═══════════════════════════════════════════════════════════════════════════╝ ║
+║                                                                            ║
+║  Phase Breakdown (10 cards):                                               ║
+║  ┌─────────┬─────────┬─────────┬─────────┬─────────┐                        ║
+║  │ Phase 1 │ Phase 2 │ Phase 3 │ Phase 4 │ Phase 5 │                        ║
+║  │Diagnose │ Detect  │Templates│Validate │Polish   │                        ║
+║  └─────────┴─────────┴─────────┴─────────┴─────────┘                        ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+</details>
 
 **Features:**
-- 🎯 Visual workflow from input to GitHub-ready package
-- 📊 Detailed phase breakdown (all 7 phases)
-- 🎨 Pan and zoom support for exploring details
+- 🎯 Visual workflow from user input to GitHub-ready package
+- 📊 Detailed phase breakdown (all 7 phases explained)
+- 🎨 **Interactive Mermaid diagram** with pan & zoom
 - 📱 Mobile-responsive design
-- 🌐 Self-contained (opens in browser)
+- 🌐 Self-contained HTML (opens in browser, no dependencies)
 
-**Download:** [📥 Save HTML](docs/github-ready-workflow.html)
+**Quick start:**
+1. Click the link above to open in your browser
+2. Explore the workflow diagram (drag to pan, scroll to zoom)
+3. Click through phase cards to see what each step does
+
+**Download:** [📥 Save HTML for offline viewing](docs/github-ready-workflow.html)
 
 ---
 
