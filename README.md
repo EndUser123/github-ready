@@ -40,15 +40,10 @@ Quick overview of features and workflow
 4. Replace `YOUR_USER_ID` and `VIDEO_ID` in the video tag below
 5. Delete the badge link
 
-Once uploaded, embedded video will appear here:
+Embedded video:
 
-```html
-<video src="https://user-images.githubusercontent.com/YOUR_USER_ID/VIDEO_ID/github-ready_explainer_video.mp4" controls="controls" style="max-width: 730px; margin: 10px 0;">
+<video src="https://github.com/user-attachments/assets/14e58085-1bdc-4e7d-a068-b1daadf72702" controls="controls" style="max-width: 730px; margin: 10px 0;">
 </video>
-```
-
-*Current fallback (download required):*
-[![Watch Video](https://img.shields.io/badge/🎬-Watch%20Video-blue?style=for-the-badge)](assets/videos/github-ready_explainer_video.mp4)
 
 **[⬇️ Download video (871 KB)](assets/videos/github-ready_explainer_video.mp4)** | [🔗 Direct link](assets/videos/github-ready_explainer_video.mp4)
 
