@@ -160,11 +160,11 @@ Quick overview of features and workflow
 
 ### 🎨 Infographic
 
-![Architecture Infographic](assets/infographic/github_ready_notebooklm.png)
+![Architecture Infographic](assets/infographics/github_ready_notebooklm.png)
 
 *Visual overview of the github-ready system architecture*
 
-**[⬇️ Download PNG](https://github.com/EndUser123/github-ready/releases/download/media/infographic.png)**
+**[⬇️ Download PNG](assets/infographics/github_ready_notebooklm.png)**
 
 ---
 
