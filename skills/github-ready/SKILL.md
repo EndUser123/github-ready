@@ -877,14 +877,13 @@ graph TB
 [![Slide deck preview](assets/slides/{{package_name}}_slides_preview.png)](assets/slides/{{package_name}}_slides.pdf)
 
 **[📄 View Slides (PDF)](assets/slides/{{package_name}}_slides.pdf)**  
-**[⬇️ Download PDF](assets/slides/{{package_name}}_slides.pdf)**  
-**[🛠 Download PPTX](assets/slides/{{package_name}}_slides.pptx)**
+**[⬇️ Download PDF](assets/slides/{{package_name}}_slides.pdf)**
 
-*Use the PDF for viewing on GitHub. Use the PPTX only if you need to edit the deck.*
+*Use the PDF for both viewing and download on GitHub.*
 
 ---
 
-**💡 Tip**: Use GitHub Pages for in-browser video playback. On GitHub, the PDF is the primary slide format and PPTX is the editable source.
+**💡 Tip**: Use GitHub Pages for in-browser video playback. Keep the slide deck in PDF form for the cleanest GitHub viewing experience.
 \`\`\`
 
 **IMPORTANT**: This media layout uses GitHub-compatible markdown. Key points:
@@ -1071,8 +1070,7 @@ meta_review_summary = {
 | **Workflow flowchart** | Phase-by-phase pipeline view | Mermaid | ~1min | `docs/diagrams/workflow.mmd` |
 | **Video player page** | Browser playback via GitHub Pages | Static HTML | ~30s | `docs/video.html` |
 | **Explainer video** | AI-narrated technical walkthrough | NotebookLM | ~1-3min target | `assets/videos/{package}_explainer_pbs.mp4` |
-| **Slide deck** | Interactive presentation | NotebookLM | ~2min | `assets/slides/{package}_slides.pdf` (download as PDF) |
-| | | | | `assets/slides/{package}_slides.pptx` (download as PPTX) |
+| **Slide deck** | Interactive presentation | NotebookLM | ~2min | `assets/slides/{package}_slides.pdf` (view and download as PDF) |
 
 **Auto-skip conditions:**
 - No README images detected (`.gif`, `.png` in README)
@@ -1536,8 +1534,7 @@ SUMMARY (10-15s): Close with the practical result for a developer using the pack
 - `assets/banners/{package}_banner.png`
 - `assets/infographics/{package}_architecture.png`
 - `assets/videos/{package}_explainer_pbs.mp4`
-- `assets/slides/{package}_slides.pdf` (download as PDF)
-- `assets/slides/{package}_slides.pptx` (download as PPTX)
+- `assets/slides/{package}_slides.pdf` (view and download as PDF)
 
 **Rationale**: Media generation after code review ensures we're creating assets for quality code. Portfolio polish (PHASE 5) then references these visual assets in README.md.
 
@@ -1702,19 +1699,18 @@ graph TB
 
 ## GitHub Slide Deck Integration
 
-**PDF vs PPTX Usage:**
+**PDF Usage:**
 
 | Format | Best For | GitHub Integration |
 |--------|----------|-------------------|
 | **PDF** | Primary viewing format on GitHub | `[View Slides (PDF)](assets/slides/{package}_slides.pdf)` |
-| **PPTX** | Editing and source deck handoff | Secondary download only |
 
 **Recommended approach:**
-1. Keep both formats in `assets/slides/`
-2. Make the PDF the first and most prominent link in `README.md`
-3. Present PPTX as the editable source, not the primary GitHub viewing path
+1. Keep the published slide deck in `assets/slides/` as PDF
+2. Make the PDF the first and most prominent slide link in `README.md`
+3. Use a slide preview image that links directly to the PDF
 4. Prefer this README pattern:
-   `View Slides (PDF)`, then `Download PDF`, then `Download PPTX`
+   `View Slides (PDF)`, then `Download PDF`
 
 ---
 
