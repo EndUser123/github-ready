@@ -44,7 +44,7 @@ def get_source_version() -> str:
             "Cannot determine source version."
         )
 
-    content = init_path.read_text()
+    content = init_path.read_text(encoding='utf-8')
 
     match = VERSION_PATTERN.search(content)
 
