@@ -197,7 +197,13 @@ class GitHubVideoUploader:
                 # Navigate to README edit page
                 edit_url = f"{self.repo_url}/edit/main/README.md"
                 print(f"Navigating to: {edit_url}")
-                await page.goto(edit_url, wait_until='networkidle')
+
+                try:
+                    await page.goto(edit_url, wait_until='domcontentloaded', timeout=30000)
+                except Exception as e:
+                    print(f"⚠️  Navigation failed: {e}")
+                    print("Retrying with networkidle...")
+                    await page.goto(edit_url, wait_until='commit', timeout=60000)
 
                 # Check if authentication is needed
                 if 'login' in page.url or 'session' in page.url:
