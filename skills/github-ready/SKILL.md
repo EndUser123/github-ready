@@ -718,6 +718,26 @@ touch {{TARGET_DIR}}/tests/__init__.py
 - Documents plugin constraints, setup commands, and development workflows
 - Critical for long-term maintainability by AI assistants
 
+### README Structure Contract
+
+**CRITICAL**: Keep the main `README.md` as the source of truth for package documentation. Use GitHub Pages only for browser playback of the explainer video unless the user explicitly asks for a separate docs site.
+
+**Required top-level README order:**
+1. Project title, badges, and one-paragraph overview
+2. `Quick Start`
+3. `Explainer Video`
+4. `What {{package_name}} Does`
+5. `Development and Deployment`
+6. `Additional Media Assets`
+7. Lower-priority reference sections such as package types, contributing, changelog, and resources
+
+**Rules:**
+- Put the explainer video immediately after `Quick Start`
+- Keep architecture, workflow, and usage details on the main GitHub page
+- Generate `docs/video.html` for GitHub Pages by default
+- Do not generate extra Pages docs such as `docs/*architecture*.html` or `docs/*workflow*.html` unless the user explicitly asks for them
+- Link the README poster image to the GitHub Pages player page and keep all other technical content in the repository README
+
 ### README Template for Claude Code Plugins
 
 **CRITICAL**: Include the "Three Deployment Models" section in every generated README.md to prevent confusion about installation methods.
@@ -817,7 +837,7 @@ cmd /c "mklink HookName.py P:/packages/{{package_name}}/core/hooks/HookName.py"
 
 ### Media Assets Section Template
 
-**After media generation completes (PHASE 4.7), add this section to README.md:**
+**After media generation completes (PHASE 4.7), add this section to README.md after `Development and Deployment`:**
 
 \`\`\`markdown
 ## Explainer Video
@@ -876,6 +896,7 @@ graph TB
 - **Slide previews**: Export the first PDF page to \`assets/slides/{{package_name}}_slides_preview.png\` and link it to the PDF
 - **Badges**: Use shields.io badges for visual appeal and clickability
 - **GitHub Pages**: Enable Pages from \`main\` root so \`docs/video.html\` is publicly available
+- **Pages scope**: Use GitHub Pages only for the video player by default; keep architecture and workflow documentation in \`README.md\`
 - **Durations**: Never hardcode video runtimes. Measure the exported file first or omit the duration label entirely
 
 **Runtime verification examples:**
