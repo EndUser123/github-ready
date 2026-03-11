@@ -111,23 +111,30 @@ class GitHubVideoUploader:
         print("  ⏳ Waiting for upload...")
         await asyncio.sleep(5)  # Wait for initial upload
 
-        # Extract CDN link from page
-        try:
-            # Wait for video element to appear
-            await page.wait_for_selector(
-                'video[src*="user-images.githubusercontent.com"]',
-                timeout=20000
-            )
+        # Extract CDN link from editor content (GitHub inserts markdown image links)
+        print("  🔍 Looking for uploaded file in editor...")
+        await asyncio.sleep(3)  # Wait for markdown link to appear
 
-            video_element = page.locator('video[src*="user-images.githubusercontent.com"]').first
-            cdn_link = await video_element.get_attribute('src')
+        # Get editor content
+        content = await self.get_page_content(page)
 
-            if cdn_link:
-                print(f"  ✅ CDN link: {cdn_link}")
-                return cdn_link
+        # Look for markdown image link with user-images URL
+        # GitHub inserts: ![filename](https://user-images.githubusercontent.com/...)
+        match = re.search(r'!\[.*?\]\((https://user-images\.githubusercontent\.com/[^\)]+)\)', content)
 
-        except:
-            print("  ⚠️  Video element not found, trying page content...")
+        if match:
+            cdn_link = match.group(1)
+            print(f"  ✅ CDN link: {cdn_link}")
+            return cdn_link
+
+        # Fallback: Look for any user-images URL in content
+        match = re.search(r'https://user-images\.githubusercontent\.com/[^\s\)"\>]+', content)
+        if match:
+            cdn_link = match.group(0)
+            print(f"  ✅ CDN link (fallback): {cdn_link}")
+            return cdn_link
+
+        raise Exception("Could not find uploaded file URL in editor content")
 
         # Fallback: Parse from page content
         await asyncio.sleep(2)
