@@ -62,11 +62,15 @@ class GitHubVideoUploader:
         print(f"Uploading {video_path.name}...")
 
         # Wait for page to load completely
-        await page.wait_for_load_state('networkidle', timeout=10000)
+        try:
+            await page.wait_for_load_state('domcontentloaded', timeout=10000)
+        except:
+            pass  # Page might already be loaded
 
         # Find the CodeMirror editor
         try:
             await page.wait_for_selector('.CodeMirror', timeout=10000)
+            print("  ✓ Found CodeMirror editor")
         except:
             raise Exception("Could not find CodeMirror editor")
 
@@ -77,64 +81,56 @@ class GitHubVideoUploader:
         try:
             file_input = page.locator('input[type="file"]').first
             if await file_input.count() > 0:
+                print("  ✓ Found file input, uploading...")
                 await file_input.set_input_files(str(video_path))
                 upload_success = True
+                print("  ✓ File input set")
         except Exception as e:
             print(f"  ⚠️  File input method failed: {e}")
-
-        # Method 2: Drag and drop to CodeMirror
-        if not upload_success:
-            try:
-                codemirror = page.locator('.CodeMirror').first
-                await codemirror.evaluate("""
-                    (element) => {
-                        // Create file input
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.style.display = 'none';
-                        document.body.appendChild(input);
-
-                        // Trigger file selection
-                        input.click();
-
-                        return input;
-                    }
-                """)
-                # Note: This method requires manual interaction, so we'll skip it
-            except Exception as e:
-                print(f"  ⚠️  Drag-drop method failed: {e}")
 
         if not upload_success:
             raise Exception("All upload methods failed")
 
-        # Wait for upload to complete
-        print("  ⏳ Waiting for upload...")
-        await asyncio.sleep(5)  # Wait for initial upload
+        # Wait for upload to complete - GitHub needs time to process and insert the link
+        print("  ⏳ Waiting for GitHub to process upload (this may take 10-30 seconds)...")
+        await asyncio.sleep(10)  # Give GitHub more time to upload
 
-        # Extract CDN link from editor content (GitHub inserts markdown image links)
-        print("  🔍 Looking for uploaded file in editor...")
-        await asyncio.sleep(3)  # Wait for markdown link to appear
+        # Check multiple times for the link to appear
+        for attempt in range(6):  # Try 6 times (30 seconds total)
+            print(f"  🔍 Checking for uploaded file... (attempt {attempt + 1}/6)")
 
-        # Get editor content
-        content = await self.get_page_content(page)
+            # Get editor content
+            content = await self.get_page_content(page)
 
-        # Look for markdown image link with user-images URL
-        # GitHub inserts: ![filename](https://user-images.githubusercontent.com/...)
-        match = re.search(r'!\[.*?\]\((https://user-images\.githubusercontent\.com/[^\)]+)\)', content)
+            # Debug: Show a snippet of content
+            if len(content) > 0:
+                preview = content[:200] if len(content) > 200 else content
+                print(f"  📄 Editor content preview: {preview}...")
+            else:
+                print("  ⚠️  Editor content is empty")
 
-        if match:
-            cdn_link = match.group(1)
-            print(f"  ✅ CDN link: {cdn_link}")
-            return cdn_link
+            # Look for markdown image link with user-images URL
+            # GitHub inserts: ![filename](https://user-images.githubusercontent.com/...)
+            match = re.search(r'!\[.*?\]\((https://user-images\.githubusercontent\.com/[^\)]+)\)', content)
 
-        # Fallback: Look for any user-images URL in content
-        match = re.search(r'https://user-images\.githubusercontent\.com/[^\s\)"\>]+', content)
-        if match:
-            cdn_link = match.group(0)
-            print(f"  ✅ CDN link (fallback): {cdn_link}")
-            return cdn_link
+            if match:
+                cdn_link = match.group(1)
+                print(f"  ✅ CDN link found: {cdn_link}")
+                return cdn_link
 
-        raise Exception("Could not find uploaded file URL in editor content")
+            # Fallback: Look for any user-images URL in content
+            match = re.search(r'https://user-images\.githubusercontent\.com/[^\s\)"\>]+', content)
+            if match:
+                cdn_link = match.group(0)
+                print(f"  ✅ CDN link found (fallback): {cdn_link}")
+                return cdn_link
+
+            # Wait before next attempt
+            if attempt < 5:
+                print("  ⏳ Link not found yet, waiting 5 more seconds...")
+                await asyncio.sleep(5)
+
+        raise Exception("Could not find uploaded file URL in editor content after 30 seconds")
 
         # Fallback: Parse from page content
         await asyncio.sleep(2)
