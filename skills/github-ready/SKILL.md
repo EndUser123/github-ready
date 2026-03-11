@@ -842,14 +842,6 @@ graph TB
     CI --> Output
 ```
 
-#### Static Overview Image
-
-![Architecture Flowchart Overview](assets/infographics/{{package_name}}_architecture.png)
-
-*Visual overview of the {{package_name}} system workflow*
-
----
-
 ### 🌐 GitHub Pages Video
 
 **[🎨 Watch the explainer in the browser →](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)**
@@ -870,6 +862,8 @@ Quick overview of features and workflow.
 
 ### 📑 Presentation Slides
 
+[![Slide deck preview](assets/slides/{{package_name}}_slides_preview.png)](assets/slides/{{package_name}}_slides.pdf)
+
 **[📄 View Slides (PDF)](assets/slides/{{package_name}}_slides.pdf)**  
 **[⬇️ Download PDF](assets/slides/{{package_name}}_slides.pdf)**  
 **[🛠 Download PPTX](assets/slides/{{package_name}}_slides.pptx)**
@@ -887,6 +881,7 @@ Quick overview of features and workflow.
 - **Recommended pattern**: Link a verified still frame such as \`assets/videos/{{package_name}}_video_poster.png\` in \`README.md\` to \`https://{{github_username}}.github.io/{{package_name}}/docs/video.html\`
 - **Fallback**: Keep the release asset MP4 link for direct download/open
 - **PDFs**: Use direct markdown links - opens in GitHub's built-in PDF viewer
+- **Slide previews**: Export the first PDF page to \`assets/slides/{{package_name}}_slides_preview.png\` and link it to the PDF
 - **Badges**: Use shields.io badges for visual appeal and clickability
 - **GitHub Pages**: Enable Pages from \`main\` root so \`docs/video.html\` is publicly available
 - **Durations**: Never hardcode video runtimes. Measure the exported file first or omit the duration label entirely
