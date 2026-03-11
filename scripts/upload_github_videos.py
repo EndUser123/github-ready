@@ -80,40 +80,18 @@ class GitHubVideoUploader:
         except:
             pass  # Page might already be loaded
 
-        # Find the CodeMirror editor
+        # Wait for editor to be available (new or old)
         try:
-            # First, let's see what's actually on the page
-            page_text = await page.evaluate("() => document.body.innerText")
-            if 'CodeMirror' in page_text:
-                print("  ✓ CodeMirror mentioned in page")
-
-            # Check for various editor selectors
-            selectors = ['.CodeMirror', 'textarea[name="value"]', '.markdown-body', '[contenteditable="true"]']
-            found_any = False
-            for sel in selectors:
-                try:
-                    count = await page.locator(sel).count()
-                    if count > 0:
-                        print(f"  ✓ Found selector: {sel} (count: {count})")
-                        found_any = True
-                except:
-                    pass
-
-            if not found_any:
-                print("  ⚠️  No editor selectors found, dumping page structure...")
-                # Try to find any input/textarea elements
-                inputs = await page.locator('input, textarea').all()
-                print(f"  📝 Found {len(inputs)} input/textarea elements")
-
-            # Now wait for CodeMirror
-            await page.wait_for_selector('.CodeMirror', timeout=10000)
-            print("  ✓ Found CodeMirror editor")
+            # Try new contenteditable editor first
+            try:
+                await page.wait_for_selector('[contenteditable="true"]', timeout=5000)
+                print("  ✓ Found new GitHub editor (contenteditable)")
+            except:
+                # Fallback to old CodeMirror editor
+                await page.wait_for_selector('.CodeMirror', timeout=5000)
+                print("  ✓ Found old GitHub editor (CodeMirror)")
         except Exception as e:
-            # Last resort: take a screenshot to see what's there
-            screenshot_path = self.video_dir / "debug_screenshot.png"
-            await page.screenshot(path=str(screenshot_path))
-            print(f"  📸 Screenshot saved to {screenshot_path}")
-            raise Exception(f"Could not find CodeMirror editor: {e}")
+            raise Exception(f"Could not find GitHub editor: {e}")
 
         # Try multiple upload methods
         upload_success = False
