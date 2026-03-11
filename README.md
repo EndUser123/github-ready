@@ -188,7 +188,11 @@ graph TB
 
 ### 📑 Presentation Slides
 
-**[📄 View PDF in GitHub viewer](assets/slides/github_ready_slides.pdf)** | [📥 Download PDF](assets/slides/github_ready_slides.pdf) | [📊 Download PPTX (editable)](assets/slides/github-ready_slides.pptx)
+**[📄 View Slides (PDF)](assets/slides/github_ready_slides.pdf)**  
+**[⬇️ Download PDF](assets/slides/github_ready_slides.pdf)**  
+**[🛠 Download PPTX](assets/slides/github-ready_slides.pptx)**
+
+*Use the PDF for viewing on GitHub. Use the PPTX only if you need to edit the deck.*
 
 ---
 
@@ -202,7 +206,7 @@ graph TB
 
 ---
 
-**💡 Tip**: PDFs open in GitHub's viewer with annotation support. PPTX files are editable for customizations.
+**💡 Tip**: On GitHub, the PDF is the primary slide format. Keep PPTX as the editable source file.
 
 ## Package Types
 

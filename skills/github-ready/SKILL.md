@@ -878,11 +878,15 @@ Deep dive into package creation.
 
 ### 📑 Presentation Slides
 
-**[📄 View PDF in GitHub viewer](assets/slides/{{package_name}}_slides.pdf)** | [📥 Download PDF](assets/slides/{{package_name}}_slides.pdf) | [📊 Download PPTX (editable)](assets/slides/{{package_name}}_slides.pptx)
+**[📄 View Slides (PDF)](assets/slides/{{package_name}}_slides.pdf)**  
+**[⬇️ Download PDF](assets/slides/{{package_name}}_slides.pdf)**  
+**[🛠 Download PPTX](assets/slides/{{package_name}}_slides.pptx)**
+
+*Use the PDF for viewing on GitHub. Use the PPTX only if you need to edit the deck.*
 
 ---
 
-**💡 Tip**: Use GitHub Pages for in-browser video playback. PDFs open in GitHub's viewer with annotation support.
+**💡 Tip**: Use GitHub Pages for in-browser video playback. On GitHub, the PDF is the primary slide format and PPTX is the editable source.
 \`\`\`
 
 **IMPORTANT**: This Media Assets section uses GitHub-compatible markdown. Key points:
@@ -1703,14 +1707,15 @@ graph TB
 
 | Format | Best For | GitHub Integration |
 |--------|----------|-------------------|
-| **PDF** | Direct download, viewing | `[![View Slides](assets/slides/{package}_slides.pdf)](assets/slides/{package}_slides.pdf)` |
-| **PPTX** | Editing, presentations, sharing | Upload to SlideShare/SpeakerDeck for embed |
+| **PDF** | Primary viewing format on GitHub | `[View Slides (PDF)](assets/slides/{package}_slides.pdf)` |
+| **PPTX** | Editing and source deck handoff | Secondary download only |
 
 **Recommended approach:**
-1. Keep both formats in assets/
-2. Use PDF for direct GitHub download link
-3. Use PPTX for external hosting platforms (SlideShare, SpeakerDeck)
-4. Add to README: `## 📊 Slides - [Download PDF](assets/slides/{package}_slides.pdf) | [View Online](external-link)`
+1. Keep both formats in `assets/slides/`
+2. Make the PDF the first and most prominent link in `README.md`
+3. Present PPTX as the editable source, not the primary GitHub viewing path
+4. Prefer this README pattern:
+   `View Slides (PDF)`, then `Download PDF`, then `Download PPTX`
 
 ---
 
