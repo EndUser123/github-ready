@@ -6,58 +6,86 @@
   <title>github-ready Explainer Video</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --link: #58a6ff;
-      --accent: #238636;
+      --bg: #0b0f14;
+      --panel: #11161d;
+      --panel-2: #161d26;
+      --border: #2d3742;
+      --text: #d9e2ec;
+      --muted: #93a1b2;
+      --link: #7cc0ff;
+      --accent: #4aa3ff;
+      --success: #63c174;
+      --shadow: rgba(0, 0, 0, 0.28);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(31, 111, 235, 0.18), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(35, 134, 54, 0.18), transparent 28%),
+        linear-gradient(180deg, rgba(122, 162, 247, 0.05), transparent 180px),
         var(--bg);
       color: var(--text);
     }
 
     .wrap {
-      max-width: 980px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 40px 20px 56px;
+      padding: 32px 20px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .topbar a {
+      color: var(--link);
+      text-decoration: none;
     }
 
     .card {
-      background: linear-gradient(180deg, rgba(22, 27, 34, 0.96), rgba(13, 17, 23, 0.98));
       border: 1px solid var(--border);
-      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(17, 22, 29, 0.96), rgba(11, 15, 20, 0.98));
+      border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 18px 40px var(--shadow);
     }
 
     .hero {
-      padding: 28px 28px 16px;
+      padding: 24px 24px 18px;
       border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.05;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
     }
 
-    p {
+    .hero p {
       margin: 0;
       color: var(--muted);
-      font-size: 1.05rem;
+      max-width: 72ch;
       line-height: 1.6;
     }
 
@@ -68,77 +96,128 @@
     video {
       display: block;
       width: 100%;
-      border-radius: 14px;
+      border-radius: 10px;
       background: #000;
-      border: 1px solid #21262d;
+      border: 1px solid #202833;
     }
 
     .meta {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      padding: 0 20px 24px;
+      gap: 12px;
+      padding: 0 20px 20px;
     }
 
-    .pill {
-      background: rgba(255, 255, 255, 0.03);
+    .meta-card {
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
+      background: var(--panel-2);
       padding: 14px 16px;
     }
 
-    .pill strong {
+    .meta-card strong {
       display: block;
-      margin-bottom: 4px;
-      font-size: 0.92rem;
-      color: var(--text);
+      margin-bottom: 5px;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .pill span {
-      color: var(--muted);
-      font-size: 0.95rem;
+    .meta-card span {
+      color: var(--text);
     }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      padding: 0 20px 28px;
+      gap: 10px;
+      padding: 0 20px 24px;
     }
 
     .button {
-      display: inline-block;
-      padding: 11px 16px;
-      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       border: 1px solid var(--border);
-      background: var(--panel);
+      background: var(--panel-2);
       color: var(--text);
       text-decoration: none;
       font-weight: 600;
     }
 
     .button.primary {
-      background: var(--accent);
-      border-color: rgba(35, 134, 54, 0.75);
+      border-color: #376ea6;
+      background: #14304c;
+      color: #dff0ff;
     }
 
-    .small {
-      padding: 0 20px 28px;
+    .button.success {
+      border-color: #34724b;
+      background: #13291c;
+      color: #def7e5;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 14px;
+      padding: 0 20px 24px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-2);
+      padding: 16px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .panel p,
+    .panel li {
       color: var(--muted);
-      font-size: 0.92rem;
+      line-height: 1.6;
     }
 
-    a {
-      color: var(--link);
+    .panel ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    code {
+      font-family: Consolas, "SFMono-Regular", Menlo, monospace;
+      font-size: 0.92em;
+      background: #0d131a;
+      border: 1px solid #27313c;
+      padding: 2px 5px;
+      border-radius: 6px;
+      color: #cfe7ff;
+    }
+
+    @media (max-width: 800px) {
+      .notes { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
+    <div class="topbar">
+      <div>github-ready / media / explainer</div>
+      <div><a href="https://github.com/EndUser123/github-ready">Back to repository</a></div>
+    </div>
+
     <section class="card">
       <header class="hero">
-        <h1>github-ready Explainer Video</h1>
-        <p>A short narrated walkthrough of the package workflow, generated media assets, and GitHub-ready output.</p>
+        <span class="eyebrow">NotebookLM Export</span>
+        <h1>Explainer Video</h1>
+        <p>A technical overview of the package workflow, generated artifacts, and GitHub-ready output. This page exists because GitHub repository READMEs do not provide reliable inline video playback.</p>
       </header>
 
       <div class="video-shell">
@@ -149,30 +228,40 @@
       </div>
 
       <section class="meta">
-        <div class="pill">
+        <div class="meta-card">
           <strong>Runtime</strong>
-          <span>22 seconds</span>
+          <span>6m 32s verified from exported asset</span>
         </div>
-        <div class="pill">
+        <div class="meta-card">
           <strong>Format</strong>
           <span>MP4 with narration</span>
         </div>
-        <div class="pill">
+        <div class="meta-card">
           <strong>Source</strong>
           <span>NotebookLM-generated media artifact</span>
         </div>
       </section>
 
       <div class="actions">
-        <a class="button primary" href="../assets/videos/github_ready_explainer_pbs.mp4">Download MP4</a>
-        <a class="button" href="github-ready-architecture.html">View Architecture Page</a>
-        <a class="button" href="github-ready-workflow.html">View Workflow Page</a>
+        <a class="button success" href="../assets/videos/github_ready_explainer_pbs.mp4">Download MP4</a>
+        <a class="button primary" href="github-ready-architecture.html">Open architecture notes</a>
+        <a class="button" href="github-ready-workflow.html">Open workflow reference</a>
       </div>
 
-      <p class="small">
-        This page is intended for GitHub Pages or any static hosting that serves the repository as HTML.
-        On the main repository view, GitHub README pages still do not provide reliable inline video playback.
-      </p>
+      <section class="notes">
+        <div class="panel">
+          <h2>Why this page exists</h2>
+          <p>GitHub repository pages are fine for code and diagrams, but not for dependable inline video playback. Hosting a dedicated player page under <code>docs/</code> gives you browser playback on GitHub Pages without forcing visitors to download the file first.</p>
+        </div>
+        <div class="panel">
+          <h2>Related pages</h2>
+          <ul>
+            <li><a href="github-ready-architecture.html">Architecture notes</a></li>
+            <li><a href="github-ready-workflow.html">Workflow reference</a></li>
+            <li><a href="https://github.com/EndUser123/github-ready/releases/tag/media">Release assets</a></li>
+          </ul>
+        </div>
+      </section>
     </section>
   </main>
 </body>

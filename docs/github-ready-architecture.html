@@ -3,462 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>github-ready - Architecture & Workflow</title>
+    <title>github-ready Architecture Notes</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0b0f14;
+            --panel: #11161d;
+            --panel-2: #161d26;
+            --line: #2d3742;
+            --text: #d9e2ec;
+            --muted: #93a1b2;
+            --accent: #7cc0ff;
+            --accent-2: #63c174;
+            --warn: #d4a85f;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background: #0d1117;
-            color: #c9d1d9;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, rgba(124, 192, 255, 0.05), transparent 160px), var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            padding: 24px 20px 40px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .container { max-width: 1180px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .topbar a, a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        header, .section, footer {
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(17, 22, 29, 0.98), rgba(11, 15, 20, 0.98));
+            border-radius: 14px;
         }
 
         header {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #30363d;
+            padding: 24px;
+            margin-bottom: 18px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            color: #58a6ff;
-            margin-bottom: 10px;
+            font-size: clamp(2rem, 4vw, 2.7rem);
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
         }
 
-        .description {
-            color: #8b949e;
-            font-size: 1.1rem;
-        }
+        .description { color: var(--muted); font-size: 1.02rem; max-width: 74ch; }
 
-        .badges {
+        .meta {
             display: flex;
-            gap: 10px;
-            margin: 15px 0;
             flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
         }
 
-        .section {
-            margin-bottom: 40px;
-            padding: 20px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 6px;
+        .meta span {
+            padding: 5px 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--panel-2);
+            color: var(--muted);
+            font-size: 0.82rem;
         }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.4fr 0.9fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .section { padding: 20px; }
 
         .section h2 {
-            color: #58a6ff;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            border-bottom: 1px solid #30363d;
+            font-size: 1.1rem;
+            margin-bottom: 14px;
             padding-bottom: 10px;
+            border-bottom: 1px solid var(--line);
         }
+
+        .section p { color: var(--muted); }
 
         .diagram-container {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 20px;
-            margin: 20px 0;
+            background: #0d131a;
+            border: 1px solid #25303b;
+            border-radius: 10px;
+            padding: 18px;
             overflow-x: auto;
+            margin-top: 14px;
         }
 
-        .feature-grid {
+        .feature-grid, .output-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
         }
 
-        .feature {
-            background: #21262d;
-            border: 1px solid #30363d;
-            padding: 15px;
-            border-radius: 6px;
+        .card {
+            border: 1px solid var(--line);
+            background: var(--panel-2);
+            border-radius: 10px;
+            padding: 14px;
         }
 
-        .feature h3 {
-            color: #58a6ff;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-
-        .feature p {
-            color: #8b949e;
-            font-size: 0.9rem;
-        }
-
-        .workflow {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .step {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-left: 3px solid #58a6ff;
-            padding: 15px;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .step-number {
-            color: #58a6ff;
-            font-weight: bold;
+        .card h3 {
+            font-size: 0.98rem;
             margin-bottom: 8px;
         }
 
-        .step h3 {
-            color: #c9d1d9;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
+        .card p, .card li { color: var(--muted); font-size: 0.94rem; }
 
-        .step p {
-            color: #8b949e;
-            font-size: 0.85rem;
-        }
-
-        .output-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .output {
-            background: #21262d;
-            border: 1px solid #30363d;
-            padding: 15px;
-            border-radius: 6px;
-        }
-
-        .output h3 {
-            color: #58a6ff;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
-
-        .output ul {
+        .card ul {
             list-style: none;
             padding: 0;
         }
 
-        .output li {
+        .card li {
             padding: 6px 0;
-            color: #8b949e;
-            font-size: 0.9rem;
-            border-bottom: 1px solid #30363d;
+            border-bottom: 1px solid #23303a;
         }
 
-        .output li:before {
-            content: "✓ ";
-            color: #3fb950;
-            margin-right: 8px;
-        }
+        .card li:last-child { border-bottom: 0; }
 
         .badge-list {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin: 20px 0;
+            margin-top: 14px;
         }
 
         .badge {
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #58a6ff;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-        }
-
-        code {
-            background: #21262d;
-            border: 1px solid #30363d;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 0.9em;
+            border: 1px solid var(--line);
+            background: var(--panel-2);
+            color: var(--muted);
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.84rem;
         }
 
         .note {
-            background: #21262d;
-            border-left: 3px solid #f2913d;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .note strong {
-            color: #f2913d;
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-left: 3px solid var(--warn);
+            border-radius: 0 10px 10px 0;
+            background: rgba(212, 168, 95, 0.08);
+            color: var(--muted);
         }
 
         footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #30363d;
-            color: #8b949e;
-            font-size: 0.9rem;
+            padding: 18px 20px;
+            color: var(--muted);
         }
 
-        a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .feature-grid, .workflow, .output-grid {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 860px) {
+            .grid { grid-template-columns: 1fr; }
+            .topbar { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="topbar">
+            <div>github-ready / docs / architecture</div>
+            <div>
+                <a href="video.html">Video</a> ·
+                <a href="github-ready-workflow.html">Workflow</a> ·
+                <a href="https://github.com/EndUser123/github-ready">Repository</a>
+            </div>
+        </div>
+
         <header>
-            <h1>github-ready Architecture</h1>
-            <p class="description">Universal Package Creator & Portfolio Polisher v5.5.1</p>
-            <div class="badges">
-                <img src="https://img.shields.io/badge/version-5.5.1-blue" alt="Version">
-                <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-                <img src="https://img.shields.io/badge/Claude_Code-plugin-purple" alt="Claude Code">
-                <img src="https://img.shields.io/badge/tests-passing-brightgreen" alt="Tests">
+            <h1>Architecture Notes</h1>
+            <p class="description">A technical view of how <code>/github-ready</code> turns a repository into a publishable package with documentation, validation, and media artifacts.</p>
+            <div class="meta">
+                <span>GitHub-safe Mermaid</span>
+                <span>Technical documentation</span>
+                <span>Static + interactive views</span>
             </div>
         </header>
 
-        <div class="section">
-            <h2>🔍 System Overview</h2>
-            <p style="margin-bottom: 15px;">github-ready automatically creates GitHub-ready Python packages, Claude skills, and Claude Code plugins with badges, CI/CD, and media assets.</p>
-            <div class="diagram-container">
-                <pre class="mermaid">
+        <div class="grid">
+            <section class="section">
+                <h2>System overview</h2>
+                <p>The core flow is straightforward: detect package type, generate structure, add polish, validate outputs, and leave the repository in a publishable state.</p>
+                <div class="diagram-container">
+                    <pre class="mermaid">
 graph TB
-    Input[User: /github-ready mylib] --> Detect[Detect Package Type]
+    Input["User: /github-ready mylib"] --> Detect["Detect package type"]
+    Detect --> Type{"Package type?"}
 
-    Detect --> Type{Package Type?}
+    Type -->|Plugin| Plugin["Plugin structure"]
+    Type -->|Skill| Skill["Skill structure"]
+    Type -->|Library| Library["Library structure"]
 
-    Type -->|Claude Code Plugin| Plugin[Plugin Structure]
-    Type -->|Claude Skill| Skill[Skill Structure]
-    Type -->|Python Library| Library[Library Structure]
-
-    Plugin --> Scaffold[Scaffolding & Generation]
+    Plugin --> Scaffold["Scaffolding and generation"]
     Skill --> Scaffold
     Library --> Scaffold
 
-    Scaffold --> Polish[Portfolio Polish]
+    Scaffold --> Polish["Portfolio polish"]
 
-    Polish --> Badges[Badges & Metrics]
-    Polish --> CI[CI/CD Workflows]
-    Polish --> Docs[Documentation]
-    Polish --> Media[Media Assets]
+    Polish --> Docs["Documentation"]
+    Polish --> Media["Media assets"]
+    Polish --> CI["CI/CD workflows"]
 
-    Media --> Diagram[Architecture Diagrams]
-    Media --> Video[Explainer Videos]
-    Media --> Slides[Presentation Slides]
+    Docs --> Output["GitHub-ready package"]
+    Media --> Output
+    CI --> Output
+                    </pre>
+                </div>
+            </section>
 
-    Badges --> Quality[Quality Validation]
-    CI --> Quality
-    Docs --> Quality
-
-    Quality --> Output[GitHub-Ready Package]
-
-    style Input fill:#1f6feb
-    style Output fill:#238636
-    style Detect fill:#21262d
-    style Scaffold fill:#21262d
-    style Polish fill:#21262d
-    style Quality fill:#21262d
-                </pre>
-            </div>
+            <section class="section">
+                <h2>Primary outputs</h2>
+                <div class="output-grid">
+                    <div class="card">
+                        <h3>Documentation</h3>
+                        <ul>
+                            <li>README.md</li>
+                            <li>CHANGELOG.md</li>
+                            <li>CONTRIBUTING.md</li>
+                            <li>AGENTS.md</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Validation</h3>
+                        <ul>
+                            <li>Tests and collection checks</li>
+                            <li>Code review step</li>
+                            <li>Quality gate before polish</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Media</h3>
+                        <ul>
+                            <li>Overview image</li>
+                            <li>Explainer video</li>
+                            <li>Slides</li>
+                            <li>Interactive HTML pages</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <div class="section">
-            <h2>⚡ Core Features</h2>
+        <section class="section">
+            <h2>Core capabilities</h2>
             <div class="feature-grid">
-                <div class="feature">
-                    <h3>🎯 Intelligent Detection</h3>
-                    <p>Automatically detects package type and requirements from project structure</p>
+                <div class="card">
+                    <h3>Type detection</h3>
+                    <p>Distinguishes Claude Code plugins, Claude skills, and Python libraries from the current repository shape.</p>
                 </div>
-                <div class="feature">
-                    <h3>📦 Multi-Format Support</h3>
-                    <p>Creates Claude skills, Python libraries, and Claude Code plugins</p>
+                <div class="card">
+                    <h3>Repository polish</h3>
+                    <p>Adds documentation, badges, GitHub Actions, and packaging conventions aimed at public presentation.</p>
                 </div>
-                <div class="feature">
-                    <h3>🎨 Portfolio Polish</h3>
-                    <p>Adds badges, CI/CD, CHANGELOG, API docs, and media artifacts</p>
+                <div class="card">
+                    <h3>Media workflow</h3>
+                    <p>Uses NotebookLM and HTML docs pages so assets are usable on GitHub and GitHub Pages.</p>
                 </div>
-                <div class="feature">
-                    <h3>🎬 Media Generation</h3>
-                    <p>Creates banners, diagrams, explainer videos, and presentations</p>
-                </div>
-                <div class="feature">
-                    <h3>🔍 Code Review</h3>
-                    <p>Automated quality validation before portfolio polish</p>
-                </div>
-                <div class="feature">
-                    <h3>🔄 Brownfield Conversion</h3>
-                    <p>Converts existing Python libraries to plugins</p>
+                <div class="card">
+                    <h3>Brownfield conversion</h3>
+                    <p>Supports converting existing Python repositories into a plugin-oriented structure when appropriate.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="section">
-            <h2>🔄 Workflow</h2>
-            <div class="workflow">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Input & Detection</h3>
-                    <p>User runs <code>/github-ready mylib</code></p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Scaffolding</h3>
-                    <p>Generate structure and boilerplate</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Portfolio Polish</h3>
-                    <p>Add badges, CI/CD, docs, media</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Quality Validation</h3>
-                    <p>Run tests and validation checks</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">5</div>
-                    <h3>Output</h3>
-                    <p>Deliver GitHub-ready package</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>📦 Output Package Types</h2>
-            <div class="output-grid">
-                <div class="output">
-                    <h3>🔌 Claude Code Plugins</h3>
-                    <ul>
-                        <li>Plugin metadata</li>
-                        <li>Core Python code</li>
-                        <li>Hooks configuration</li>
-                        <li>Skill definitions</li>
-                        <li>Tests and documentation</li>
-                    </ul>
-                </div>
-                <div class="output">
-                    <h3>🎯 Claude Skills</h3>
-                    <ul>
-                        <li>SKILL.md with workflow</li>
-                        <li>Resources directory</li>
-                        <li>Scripts directory</li>
-                        <li>Documentation</li>
-                        <li>Tests</li>
-                    </ul>
-                </div>
-                <div class="output">
-                    <h3>📚 Python Libraries</h3>
-                    <ul>
-                        <li>src/package/ structure</li>
-                        <li>pyproject.toml</li>
-                        <li>Tests directory</li>
-                        <li>README.md</li>
-                        <li>LICENSE</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>✨ Portfolio Polish Features</h2>
+        <section class="section">
+            <h2>Portfolio outputs</h2>
             <div class="badge-list">
-                <span class="badge">Coverage Badges</span>
-                <span class="badge">Version Badges</span>
-                <span class="badge">License Badges</span>
-                <span class="badge">CI Status</span>
+                <span class="badge">Coverage badges</span>
+                <span class="badge">Version badges</span>
+                <span class="badge">License badges</span>
                 <span class="badge">GitHub Actions</span>
-                <span class="badge">CHANGELOG.md</span>
-                <span class="badge">CONTRIBUTING.md</span>
-                <span class="badge">API Documentation</span>
-                <span class="badge">Architecture Diagrams</span>
-                <span class="badge">Explainer Videos</span>
-                <span class="badge">Presentation Slides</span>
-                <span class="badge">NotebookLM Integration</span>
+                <span class="badge">Architecture flowchart</span>
+                <span class="badge">Explainer video</span>
+                <span class="badge">Slide deck</span>
+                <span class="badge">NotebookLM integration</span>
             </div>
-        </div>
-
-        <div class="note">
-            <strong>💡 Tip:</strong> This diagram uses Mermaid for the flowchart. You can pan and zoom to explore the architecture in detail.
-        </div>
+            <div class="note">
+                The goal here is clarity, not spectacle. This page uses a restrained palette and simpler structure so the technical signal stays readable.
+            </div>
+        </section>
 
         <footer>
-            <p><strong>github-ready</strong> - Create portfolio-worthy Python packages, skills, and plugins</p>
-            <p style="margin-top: 10px;">
-                <a href="https://github.com/EndUser123/github-ready">View on GitHub</a> •
-                <a href="https://github.com/EndUser123/github-ready/blob/main/LICENSE">MIT License</a> •
-                <a href="https://github.com/EndUser123/github-ready/issues">Report Issues</a>
-            </p>
+            <strong>github-ready</strong> ·
+            <a href="https://github.com/EndUser123/github-ready">Repository</a> ·
+            <a href="github-ready-workflow.html">Workflow reference</a> ·
+            <a href="video.html">Explainer video</a>
         </footer>
     </div>
 
     <script>
         mermaid.initialize({
             startOnLoad: true,
-            theme: 'dark',
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'basis'
-            },
+            theme: 'base',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'linear' },
             themeVariables: {
-                primaryColor: '#1f6feb',
-                primaryTextColor: '#c9d1d9',
-                primaryBorderColor: '#58a6ff',
-                lineColor: '#58a6ff',
-                secondaryColor: '#21262d',
-                tertiaryColor: '#161b22',
-                background: '#0d1117',
-                mainBkg: '#21262d',
-                nodeBorder: '#30363d',
-                clusterBkg: '#161b22',
-                titleColor: '#58a6ff',
-                edgeLabelBackground: '#21262d',
-                actorBkg: '#21262d',
-                actorBorder: '#30363d',
-                actorTextColor: '#c9d1d9',
-                actorLineColor: '#58a6ff',
-                signalColor: '#58a6ff',
-                signalTextColor: '#c9d1d9',
-                labelBoxBkgColor: '#21262d',
-                labelBoxBorderColor: '#30363d',
-                labelTextColor: '#c9d1d9',
-                loopTextColor: '#c9d1d9',
-                noteBorderColor: '#f2913d',
-                noteBkgColor: '#21262d',
-                noteTextColor: '#c9d1d9',
-                activationBorderColor: '#58a6ff',
-                activationBkgColor: '#21262d',
-                sequenceNumberColor: '#58a6ff'
+                primaryColor: '#18222d',
+                primaryTextColor: '#d9e2ec',
+                primaryBorderColor: '#46607a',
+                lineColor: '#6f8ba7',
+                secondaryColor: '#18222d',
+                tertiaryColor: '#18222d',
+                background: '#0b0f14',
+                mainBkg: '#18222d',
+                nodeBorder: '#46607a',
+                edgeLabelBackground: '#11161d',
+                clusterBkg: '#11161d',
+                titleColor: '#d9e2ec'
             }
         });
     </script>
