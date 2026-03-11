@@ -19,12 +19,9 @@ Author: github-ready automation script
 import json
 import re
 from pathlib import Path
-from typing import Optional
 
 
 # Version extraction patterns
- patterns
-
 VERSION_PATTERN = re.compile(r'__version__\s*=\s*["\']([^"\']+)["\']')
 README_VERSION_PATTERN = re.compile(r'v?(\d+\.\d+\.\d+[-\w.]*)')
 
@@ -43,8 +40,8 @@ def get_source_version() -> str:
 
     if not init_path.exists():
         raise ValueError(
-            f"core/__init__.py not found. "
-            f"Cannot determine source version."
+            "core/__init__.py not found. "
+            "Cannot determine source version."
         )
 
     content = init_path.read_text()
@@ -53,8 +50,8 @@ def get_source_version() -> str:
 
     if not match:
         raise ValueError(
-            f"Could not find __version__ in core/__init__.py. "
-            f"Expected format: __version__ = \"X.Y.Z\""
+            "Could not find __version__ in core/__init__.py. "
+            "Expected format: __version__ = \"X.Y.Z\""
         )
 
     return match.group(1)
@@ -75,7 +72,7 @@ def update_plugin_json(version: str) -> bool:
     plugin_path = Path(".claude-plugin/plugin.json")
 
     if not plugin_path.exists():
-        print(f"⚠️  Warning: .claude-plugin/plugin.json not found, skipping")
+        print("⚠️  Warning: .claude-plugin/plugin.json not found, skipping")
         return False
 
     with open(plugin_path, 'r') as f:
@@ -120,7 +117,7 @@ def update_readme(version: str) -> bool:
     readme_path = Path("README.md")
 
     if not readme_path.exists():
-        print(f"⚠️  Warning: README.md not found, skipping")
+        print("⚠️  Warning: README.md not found, skipping")
         return False
 
     content = readme_path.read_text()
