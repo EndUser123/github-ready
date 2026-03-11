@@ -120,7 +120,7 @@ def update_readme(version: str) -> bool:
         print("⚠️  Warning: README.md not found, skipping")
         return False
 
-    content = readme_path.read_text()
+    content = readme_path.read_text(encoding='utf-8')
     original_content = content
 
     try:
