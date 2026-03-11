@@ -129,7 +129,7 @@ cmd /c "mklink HookName.py P:/packages/github-ready/core/hooks/HookName.py"
 
 ### 🎙️ Explainer Video
 
-[![Watch the demo with audio](assets/preview.gif)](https://enduser123.github.io/github-ready/docs/video.html)
+[![Watch the demo with audio](assets/videos/debug_screenshot.png)](https://enduser123.github.io/github-ready/docs/video.html)
 
 > **[🎬 Watch the explainer in the browser](https://enduser123.github.io/github-ready/docs/video.html)**  
 > **[⬇️ Download the MP4 directly](https://github.com/EndUser123/github-ready/releases/download/media/github_ready_explainer_pbs.mp4)**
