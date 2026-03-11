@@ -1066,7 +1066,6 @@ meta_review_summary = {
 | **Architecture overview image** | Visual system overview | NotebookLM | ~2min | `assets/infographics/{package}_architecture.png` |
 | **System overview flowchart** | GitHub-safe architecture view | Mermaid | ~1min | `docs/diagrams/system_overview.mmd` |
 | **Workflow flowchart** | Phase-by-phase pipeline view | Mermaid | ~1min | `docs/diagrams/workflow.mmd` |
-| **Interactive HTML** | Portfolio showcase | visual-explainer:generate-web-diagram | ~30s | `docs/{package}-architecture.html` |
 | **Video player page** | Browser playback via GitHub Pages | Static HTML | ~30s | `docs/video.html` |
 | **Explainer video** | AI-narrated technical walkthrough | NotebookLM | ~1-3min target | `assets/videos/{package}_explainer_pbs.mp4` |
 | **Slide deck** | Interactive presentation | NotebookLM | ~2min | `assets/slides/{package}_slides.pdf` (download as PDF) |
@@ -1090,7 +1089,7 @@ meta_review_summary = {
 
 **Execution flow:**
 ```
-Provider detection → Review bundle generation → Video brief generation → Multi-source upload (brief + review bundle + source files) → Asset generation (NotebookLM + visual-explainer) → Quality verification → Notebook cleanup
+Provider detection → Review bundle generation → Video brief generation → Multi-source upload (brief + review bundle + source files) → Asset generation (NotebookLM + video page) → Quality verification → Notebook cleanup
 ```
 
 **Asset generation via nlm CLI (v0.4.4+):**
@@ -1644,81 +1643,33 @@ graph TB
 
 ---
 
-## Interactive HTML Architecture Flowchart
+## GitHub Pages Video Player
 
-**Objective**: Generate a beautiful, interactive HTML diagram for portfolio showcasing and documentation.
+**Objective**: Generate a single-purpose HTML page for browser playback of the explainer video.
 
-**When**: Runs automatically after the system overview flowcharts are created.
+**When**: Runs after the explainer video is generated.
 
 **What this does:**
-- Creates a self-contained HTML file with interactive Mermaid flowchart
-- Includes system overview, features grid, workflow steps, and output types
-- Beautiful dark theme matching GitHub's design
-- Pan and zoom support for exploring architecture details
-- Mobile-responsive design
+- Creates `docs/video.html` as a lightweight HTML5 player page
+- Keeps GitHub Pages focused on playback only
+- Leaves architecture and workflow explanation on the main GitHub repository page
 
 **Generated asset:**
 
-| Asset | Purpose | Tool | Time | Output Format |
-|-------|---------|------|------|---------------|
-| **Interactive HTML** | Portfolio showcase, interactive docs | visual-explainer:generate-web-diagram | ~30s | `docs/{package}-architecture.html` |
-
-**Content includes:**
-- **System Overview**: Mermaid flowchart showing detection → scaffolding → polish → validation
-- **Core Features**: Feature grid with 6 key capabilities
-- **Workflow**: 5-step workflow visualization
-- **Output Package Types**: Comparison of plugins, skills, and libraries
-- **Portfolio Polish Features**: Badge list of all generated artifacts
-
-**Execution flow:**
-```bash
-# Invoke visual-explainer skill to generate HTML diagram
-Skill(skill="visual-explainer:generate-web-diagram",
-      args="github-ready package architecture workflow showing how it creates Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, and media artifacts")
-```
-
-**Duration**: ~30 seconds
-
-**Auto-skip conditions:**
-- HTML diagram already exists in `docs/{package}-architecture.html`
-- User explicitly opts out with `--skip html-diagram`
-
-**Provider requirements:**
-- **visual-explainer:generate-web-diagram skill**: Installed via `/universal-skills-manager` or ClawHub
-- No API keys required
-
-**Quality verification:**
-- Check HTML file was created in `docs/`
-- Verify Mermaid diagram renders correctly
-- Confirm dark theme styling is applied
-- Test interactive features (pan, zoom)
+| Asset | Purpose | Format | Output |
+|-------|---------|--------|--------|
+| **Video player page** | Browser playback for the README video link | HTML | `docs/video.html` |
 
 **Integration with README.md:**
 
-The HTML diagram link should be added to the README Media Assets section:
-
 ```markdown
-### 📊 Architecture Flowchart
-
-**[🎨 View Interactive Architecture Flowchart →](docs/{package}-architecture.html)**
-
-![Architecture Flowchart Overview](assets/infographics/{package}_architecture.png)
-
-*Static overview • Click link above for interactive version with Mermaid flowchart*
+[![Watch the demo with audio](assets/preview.gif)](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)
 ```
 
-**Comparison: Interactive HTML vs Static Diagrams**
-
-| Aspect | Interactive HTML | Static Images | Mermaid Files |
-|--------|-----------------|---------------|---------------|
-| **Format** | HTML with embedded Mermaid | PNG/JPG images | `.mmd` text files |
-| **Interactivity** | ✅ Pan, zoom, responsive | ❌ Static | ✅ If rendered |
-| **Use case** | Portfolio showcase | Quick preview | Documentation |
-| **Version control** | ⚠️ Large HTML diff | ❌ Binary | ✅ Git-diff friendly |
-| **Location** | `docs/{package}-architecture.html` | `assets/infographics/` | `docs/diagrams/` |
-| **Generation** | visual-explainer skill | NotebookLM | mermaid-diagrams skill |
-
-**All three formats are generated** to serve different purposes: technical docs (Mermaid), portfolio (HTML), and quick preview (images).
+**Rules:**
+- Do not create extra GitHub Pages docs for architecture or workflow unless the user explicitly asks for a separate docs site
+- Keep GitHub as the source of truth for technical documentation
+- Use GitHub Pages only to solve the inline video playback limitation
 
 ---
 
