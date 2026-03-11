@@ -226,56 +226,50 @@ graph TB
 
 ---
 
-### 📐 System Architecture (C4 Diagrams)
-
-#### System Context
+### 📐 System Overview
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%
+graph TB
+    Input[User: /github-ready mylib] --> Detect[Detect Package Type]
 
-C4Context
-    title System Context - github-ready Package Creator
+    Detect --> Type{Package Type?}
 
-    Person(user, "Package Developer", "Creates packages using /github-ready command")
+    Type -->|Claude Code Plugin| Plugin[Plugin Structure]
+    Type -->|Claude Skill| Skill[Skill Structure]
+    Type -->|Python Library| Library[Library Structure]
 
-    System(github_ready, "github-ready", "Universal Package Creator and Portfolio Polisher")
+    Plugin --> Scaffold[Scaffolding and Generation]
+    Skill --> Scaffold
+    Library --> Scaffold
 
-    System_Ext(gitHub, "GitHub", "Code hosting and collaboration platform")
+    Scaffold --> Polish[Portfolio Polish]
 
-    System_Ext(notebookLM, "NotebookLM", "AI-powered research and note-taking")
+    Polish --> Badges[Badges and Metrics]
+    Polish --> CI[CI/CD Workflows]
+    Polish --> Docs[Documentation]
+    Polish --> Media[Media Assets]
 
-    Rel(user, github_ready, "Uses", "CLI command (/github-ready)")
-    Rel(github_ready, gitHub, "Publishes", "Portfolio-ready packages")
-    Rel(github_ready, notebookLM, "Generates", "Media assets (optional)")
+    Media --> Diagram[Architecture Diagrams]
+    Media --> Video[Explainer Videos]
+    Media --> Slides[Presentation Slides]
+
+    Badges --> Quality[Quality Validation]
+    CI --> Quality
+    Docs --> Quality
+
+    Quality --> Output[GitHub-Ready Package]
+
+    style Input fill:#1f6feb
+    style Output fill:#238636
+    style Detect fill:#21262d
+    style Scaffold fill:#21262d
+    style Polish fill:#21262d
+    style Quality fill:#21262d
 ```
 
-#### Container Diagram
+*Interactive source:* [github-ready-architecture.html](docs/github-ready-architecture.html)
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1f6feb', 'primaryTextColor': '#c9d1d9', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#21262d', 'tertiaryColor': '#161b22'}}}%%
-
-C4Container
-    title Container Diagram - github-ready Architecture
-
-    Person(user, "Package Developer", "Creates packages")
-
-    Container(cli, "CLI Interface", "Claude Code", "/github-ready command", "Skill invocation")
-
-    Container(skill, "Package Skill", "Python", "Main package creation logic", "Core processing")
-
-    Container_Ext(notebookLM, "NotebookLM", "External Service", "AI media generation", "Optional integration")
-
-    ContainerDb(localFiles, "Package Files", "File System", "Source code, configs, docs")
-
-    Rel(user, cli, "Invokes")
-    Rel(cli, skill, "Executes")
-    Rel(skill, localFiles, "Reads", "Package structure")
-    Rel(skill, localFiles, "Writes", "Generated artifacts")
-    Rel(skill, notebookLM, "Uploads sources", "For media generation")
-    Rel(notebookLM, skill, "Returns", "Generated assets")
-```
-
-*Editable source files:* [c4_context.mmd](docs/diagrams/c4_context.mmd) | [c4_containers.mmd](docs/diagrams/c4_containers.mmd) | [c4_components.mmd](docs/diagrams/c4_components.mmd)
+*Optional technical diagram sources:* [c4_context.mmd](docs/diagrams/c4_context.mmd) | [c4_containers.mmd](docs/diagrams/c4_containers.mmd) | [c4_components.mmd](docs/diagrams/c4_components.mmd)
 
 ---
 
