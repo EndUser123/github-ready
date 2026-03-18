@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.14.0] - 2026-03-18
+
+### Added
+- Concise "## Video Hosting Pattern" section in README.md
+  - Folder structure diagram (assets/videos/ + docs/video.html)
+  - Complete HTML template for video player page
+  - GitHub Pages enablement instructions (one-line)
+  - README linking example
+  - Self-contained reference for future LLMs (no external file reading required)
+
+### Changed
+- Updated version badge to 5.14.0
+- Added video hosting pattern directly in README for immediate reference
+
 ## [5.12.0] - 2026-03-18
 
 ### Added
@@ -89,6 +103,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 See previous skill documentation for historical changes.
 
-[5.5.2]: https://github.com/yourusername/github-ready/compare/v5.5.1...v5.5.2
-[5.5.1]: https://github.com/yourusername/github-ready/compare/v5.5.0...v5.5.1
-[5.5.0]: https://github.com/yourusername/github-ready/compare/v5.4.0...v5.5.0
+[5.14.0]: https://github.com/EndUser123/github-ready/compare/v5.12.0...v5.14.0
+[5.12.0]: https://github.com/EndUser123/github-ready/compare/v5.11.0...v5.12.0
+[5.11.0]: https://github.com/EndUser123/github-ready/compare/v5.5.3...v5.11.0
+[5.5.3]: https://github.com/EndUser123/github-ready/compare/v5.5.2...v5.5.3
+[5.5.2]: https://github.com/EndUser123/github-ready/compare/v5.5.1...v5.5.2
+[5.5.1]: https://github.com/EndUser123/github-ready/compare/v5.5.0...v5.5.1
+[5.5.0]: https://github.com/EndUser123/github-ready/compare/v5.4.0...v5.5.0

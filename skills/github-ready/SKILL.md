@@ -1,7 +1,7 @@
 ---
 name: github-ready
-version: 5.6.0
-description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, and automatic plugin standards validation.
+version: 5.14.0
+description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, and automatic plugin standards validation. Now includes PHASE 6: GitHub Publication and PHASE 7: Repository Finalization.
 category: scaffolding
 triggers:
   - /github-ready
@@ -17,13 +17,14 @@ workflow_steps:
   - generate_badges
   - create_documentation
   - validate_package
+  - publish_to_github
+  - finalize_repository
   - cleanup_obsolete_files
 
 suggest:
   - /init
-  - /github-public-posting
 ---
-# /github-ready — Universal Package Creator & Portfolio Polisher v5.6.0
+# /github-ready — Universal Package Creator & Portfolio Polisher v5.14.0
 
 ## Purpose
 
@@ -100,7 +101,6 @@ This skill includes utility scripts and reference documentation:
 ### Architecture Alignment
 - Integrates with `//p-2025` for Python standards
 - Works with `/init` for CLAUDE.md initialization
-- Integrates with `/github-public-posting` for pre-publish checks
 
 ## Your Workflow
 
@@ -2070,14 +2070,230 @@ jobs:
 - Test coverage reporting and badges
 
 **Output**: Portfolio-ready repository with badges, CI/CD, docs, and examples.
-## PHASE 6: Cleanup (Auto-invoked)**Objective**: Detect and remove obsolete files after refactoring/scaffolding.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**What this detects**:- **Backup files** (*.backup-*, *.old, *.bak) - Shows file size and removal command- **Orphaned test files** - Tests for modules that no longer exist- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs- **Duplicate implementations** - Known refactoring patterns (e.g., skill_enforcement → skill_first_gate)**Output**: `CLEANUP_REPORT.md` with:- Categorized list of files to remove- Evidence for why each should be removed- Bulk removal commands ready to run- Commit message template**Usage**: Review report and manually remove files (recommended for first run).
-## PHASE 7: Git Ready (Auto-invoked)**Objective**: Initialize git repository and create initial commit.**When**: Automatically runs after PHASE 4 (Validate) completes.**What this does**:- Initialize git repository (if not already a git repo): `git init`- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`- Set main branch: `git branch -M main`- Skips if `.git/` directory already exists**Manual steps** (user does when ready):- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`- Push to GitHub: `git push -u origin main`## PHASE 7: Recruiter Readiness Validation (Auto-invoked)**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**Checks performed**:- TODO comments in pyproject.toml (suggests incomplete work)- Plan files in root (looks messy/unprofessional)- Missing CI/CD workflow (reduces perceived professionalism)- No tests directory (lack of quality evidence)- Version is 0.0.x or 0.1.x (suggests experimental/unstable)**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)**Auto-fixes available**: Remove TODOs, move plan files to docs/planning/, create CI/CD workflow, bump version to 0.5.0 or 1.0.0.**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
+
+---
+
+## PHASE 6: GitHub Publication (Optional)
+
+**Objective**: Extract package from monorepo (if needed) and create GitHub repository.
+
+**Trigger**: User explicitly requests GitHub publication via `--publish` flag.
+
+**When**: After PHASE 5 (Portfolio Polish) completes, user can optionally publish to GitHub.
+
+**What this does**:
+
+1. **Monorepo Extraction** (if package is in a monorepo):
+   - Uses `extract_from_monorepo.py` to create clean git history
+   - Two methods: subtree split (preserves history) or fresh init (clean slate)
+   - Creates standalone git repository in target directory
+
+2. **GitHub Repository Creation**:
+   - Uses `create_github_repo.py` to create repository via GitHub CLI (gh)
+   - Sets repository to public
+   - Adds remote and pushes code
+   - Verifies repository creation
+
+**Scripts**:
+- `scripts/extract_from_monorepo.py` - Monorepo extraction
+- `scripts/create_github_repo.py` - GitHub repository creation
+
+**Prerequisites**:
+- GitHub CLI (`gh`) installed and authenticated
+- Valid GitHub token with repo creation permissions
+
+**Usage**:
+```bash
+# Publish to GitHub
+/github-ready my-package --publish
+
+# Or manually after package creation
+cd P:/packages/my-package
+python ../github-ready/scripts/extract_from_monorepo.py . my-package
+python ../github-ready/scripts/create_github_repo.py my-package . "My awesome package"
+```
+
+**Output**: Public GitHub repository with code pushed and ready for use.
+
+---
+
+## PHASE 7: Repository Finalization (Optional)
+
+**Objective**: Automate post-publish tasks that happen immediately after repo creation.
+
+**Trigger**: User explicitly requests finalization via `--finalize` flag.
+
+**When**: After PHASE 6 (GitHub Publication) completes.
+
+**What this does**:
+
+1. **GitHub Pages Enablement**:
+   - Automatically enables GitHub Pages for documentation
+   - Sets correct branch/directory (root or /docs)
+   - Provides Pages URL for verification
+
+2. **Initial Release Creation**:
+   - Creates v0.1.0 or v1.0.0 release via `gh release create`
+   - Generates release notes from CHANGELOG.md
+   - Provides release URL for verification
+
+3. **Repository Topics/Tags**:
+   - Adds relevant topics based on package type (python, claude-code, plugin, mcp, etc.)
+   - Improves repository discoverability
+
+4. **CODEOWNERS File**:
+   - Generates CODEOWNERS file from git config or provided username
+   - Essential for collaborative projects
+
+5. **SECURITY.md File**:
+   - Generates security policy template
+   - Includes vulnerability reporting instructions
+
+**Script**: `scripts/finalize_github_repo.py`
+
+**Usage**:
+```bash
+# Finalize after GitHub publication
+/github-ready my-package --publish --finalize
+
+# Or manually after repo creation
+cd P:/packages/my-package
+python ../github-ready/scripts/finalize_github_repo.py my-package . --package-type plugin
+```
+
+**Options**:
+- `--package-type` - Type of package (plugin, skill, mcp, library, tool)
+- `--release-version` - Version for initial release (default: 0.1.0)
+- `--username` - GitHub username for CODEOWNERS
+- `--skip-pages` - Skip GitHub Pages enablement
+- `--skip-release` - Skip initial release creation
+- `--skip-topics` - Skip adding repository topics
+- `--skip-codeowners` - Skip CODEOWNERS file generation
+- `--skip-security` - Skip SECURITY.md generation
+
+**Output**: Fully finalized GitHub repository with Pages enabled, initial release created, topics added, and governance files in place.
+
+---
+
+## PHASE 4.6: Quality Scanning (Optional, during validation)
+
+**Objective**: Automated security and dependency scanning during validation phase.
+
+**Trigger**: User explicitly requests quality scan via `--scan-quality` flag.
+
+**When**: During PHASE 4 (Validate) or as standalone check.
+
+**What this does**:
+
+1. **Security Scanning**:
+   - Runs `bandit` for Python security issues
+   - Runs `safety` for known vulnerable dependencies
+   - Reports issues by severity (HIGH, MEDIUM, LOW)
+
+2. **Dependency Auditing**:
+   - Runs `pip-audit` for vulnerability scanning
+   - Checks for outdated packages
+   - Reports affected versions
+
+3. **Badge Validation**:
+   - Verifies all badge URLs in README.md are reachable
+   - Checks CI/CD badges reference correct workflows
+   - Warns about broken badges
+
+4. **Quality Metrics**:
+   - Counts Python files and test files
+   - Calculates test ratio
+   - Reports total lines of code
+
+**Script**: `scripts/scan_package_quality.py`
+
+**Usage**:
+```bash
+# Scan during package creation
+/github-ready my-package --scan-quality
+
+# Or as standalone check
+python scripts/scan_package_quality.py P:/packages/my-package
+
+# With options
+python scripts/scan_package_quality.py . --skip-badges --save-report
+```
+
+**Options**:
+- `--skip-security` - Skip security scanning (bandit, safety)
+- `--skip-audit` - Skip dependency auditing (pip-audit)
+- `--skip-badges` - Skip badge validation
+- `--skip-quality` - Skip code quality metrics
+- `--save-report` - Save scan results to .quality-report.json
+- `--fail-on-issues` - Exit with error code if issues are found
+
+**Output**: Quality scan report with security issues, vulnerabilities, badge problems, and quality metrics.
+
+---
+
+## PHASE 8: Cleanup (Auto-invoked)
+
+**Objective**: Detect and remove obsolete files after refactoring/scaffolding.
+
+**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.
+
+**What this detects**:
+- **Backup files** (*.backup-*, *.old, *.bak) - Shows file size and removal command
+- **Orphaned test files** - Tests for modules that no longer exist
+- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs
+- **Duplicate implementations** - Known refactoring patterns (e.g., skill_enforcement → skill_first_gate)
+
+**Output**: `CLEANUP_REPORT.md` with:
+- Categorized list of files to remove
+- Evidence for why each should be removed
+- Bulk removal commands ready to run
+- Commit message template
+
+**Usage**: Review report and manually remove files (recommended for first run).
+
+---
+
+## PHASE 9: Git Ready (Auto-invoked)
+
+**Objective**: Initialize git repository and create initial commit.
+
+**When**: Automatically runs after PHASE 4 (Validate) completes.
+
+**What this does**:
+- Initialize git repository (if not already a git repo): `git init`
+- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`
+- Set main branch: `git branch -M main`
+- Skips if `.git/` directory already exists
+
+**Manual steps** (user does when ready):
+- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`
+- Push to GitHub: `git push -u origin main`
+
+---
+
+## PHASE 10: Recruiter Readiness Validation (Auto-invoked)
+
+**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.
+
+**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.
+
+**Checks performed**:
+- TODO comments in pyproject.toml (suggests incomplete work)
+- Plan files in root (looks messy/unprofessional)
+- Missing CI/CD workflow (reduces perceived professionalism)
+- No tests directory (lack of quality evidence)
+- Version is 0.0.x or 0.1.x (suggests experimental/unstable)
+
+**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)
+
+**Auto-fixes available**: Remove TODOs, move plan files to docs/planning/, create CI/CD workflow, bump version to 0.5.0 or 1.0.0.
+
+**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
 
 ## Integration
 
 **Related skills:**
 - `/init` - Initialize CLAUDE.md for new projects
-- `/github-public-posting` - Pre-publish checklist for GitHub
 
 **Deprecated skills:**
 - `/media-pipeline` - Functionality merged into `/package` as PHASE 4.7 (Media Generation)
