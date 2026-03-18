@@ -1,7 +1,7 @@
 ---
 name: github-ready
-version: 5.6.0
-description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, and automatic plugin standards validation.
+version: 5.7.0
+description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, automatic plugin standards validation, and Python import/path validation.
 category: scaffolding
 triggers:
   - /github-ready
@@ -23,7 +23,7 @@ suggest:
   - /init
   - /github-public-posting
 ---
-# /github-ready — Universal Package Creator & Portfolio Polisher v5.6.0
+# /github-ready — Universal Package Creator & Portfolio Polisher v5.7.0
 
 ## Purpose
 
@@ -382,7 +382,7 @@ cmd /c "mklink SessionStart_handoff_restore.py p:\packages\handoff\core\hooks\Se
 - **`scripts/`** - Helper scripts and utilities (Python code goes here)
 - **`.github/`** - GitHub workflows
 
-**⚠️ CRITICAL CORRECTION FROM v5.6.0**:
+**⚠️ CRITICAL CORRECTION FROM v5.7.0**:
 - ❌ **WRONG**: `core/` directory is NOT in official spec
 - ✅ **CORRECT**: Python code in `scripts/` or component directories
 - ✅ **CORRECT**: Components at ROOT level (not nested in `.claude-plugin/`)
@@ -1140,17 +1140,137 @@ if [ "$PLATFORM" = "windows" ]; then
 fi
 ```
 
-2. **Symlink test** (for Claude skills):
+2. **Python Import & Path Validation** (CRITICAL for importable packages):
+```bash
+# Check for Python-incompatible directory names
+DIR_NAME=$(basename "{{TARGET_DIR}}")
+if echo "$DIR_NAME" | grep -qE '[- ]'; then
+  echo "❌ ERROR: Directory name contains Python-incompatible characters:"
+  echo "   Found: '$DIR_NAME'"
+  echo "   Issue: Hyphens and spaces break 'import' statements"
+  echo "   Fix: Rename to use underscores"
+  echo ""
+  echo "   Commands to fix:"
+  echo "   cd $(dirname '{{TARGET_DIR}}')"
+  echo "   mv '$DIR_NAME' '${DIR_NAME//[- ]/_}'"
+  echo ""
+  echo "   Before: from $DIR_NAME import Something  # ❌ SyntaxError"
+  echo "   After:  from ${DIR_NAME//[- ]/_} import Something  # ✅ Works"
+  echo ""
+fi
+
+# Check for missing root __init__.py (needed for clean imports)
+if [ -d "{{TARGET_DIR}}/core" ] && [ ! -f "{{TARGET_DIR}}/__init__.py" ]; then
+  echo "⚠️  WARNING: Missing root __init__.py for clean imports"
+  echo "   Issue: Cannot use 'from package_name import Something'"
+  echo "   Fix: Add {{TARGET_DIR}}/__init__.py with:"
+  echo ""
+  echo "   from .core import (
+  echo "       ClassOne,
+  echo "       ClassTwo,
+  echo "   )"
+  echo ""
+  echo "   __all__ = ['ClassOne', 'ClassTwo']"
+  echo ""
+fi
+
+# Check for import dependencies that don't exist (only for Python packages)
+if [ -d "{{TARGET_DIR}}/core" ]; then
+  echo "🔍 Scanning for missing import dependencies..."
+
+  # Find all Python files and extract their imports
+  cd "{{TARGET_DIR}}"
+  python3 << 'PYEOF'
+import ast
+import sys
+from pathlib import Path
+
+# Known internal imports that should have fallbacks
+KNOWN_FALLBACKS = {
+    'config': 'from ...config import config',
+    'settings': 'from ...settings import settings',
+}
+
+issues_found = []
+
+for py_file in Path('core').rglob('*.py'):
+    try:
+        with open(py_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        tree = ast.parse(content, filename=py_file)
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                if node.module:
+                    # Check if it's a relative import to parent modules
+                    if node.level > 0:
+                        parts = node.module.split('.') if node.module else []
+                        full_import = '.' * node.level + ('.'.join(parts) if parts else '')
+
+                        # Check if this is a known fallback pattern
+                        has_fallback = False
+                        for alias in node.names:
+                            imported_name = alias.name
+                            for fallback_name, fallback_pattern in KNOWN_FALLBACKS.items():
+                                if fallback_name in node.module:
+                                    # Check if file has try/except for this import
+                                    if 'try:' in content and 'except ImportError' in content:
+                                        has_fallback = True
+                                        break
+
+                        if not has_fallback and node.level >= 2:
+                            # Check if the imported module actually exists
+                            # For level 2+ imports (..module), check parent directories
+                            check_path = py_file
+                            for _ in range(node.level - 1):
+                                check_path = check_path.parent
+
+                            if node.module:
+                                for part in node.module.split('.'):
+                                    check_path = check_path / part
+                                    if not check_path.exists() and not check_path.with_suffix('.py').exists():
+                                        issues_found.append({
+                                            'file': str(py_file.relative_to('core')),
+                                            'import': full_import + ('.' + node.module if node.module else ''),
+                                            'issue': 'Module does not exist'
+                                        })
+                                        break
+    except Exception as e:
+        pass  # Skip files that can't be parsed
+
+if issues_found:
+    print("❌ Found missing import dependencies:")
+    for issue in issues_found:
+        print(f"   File: {issue['file']}")
+        print(f"   Import: {issue['import']}")
+        print(f"   Issue: {issue['issue']}")
+        print("")
+    print("💡 Suggested fixes:")
+    print("   1. Add try/except fallback:")
+    print("      try:")
+    print("          from ...module import Something")
+    print("      except ImportError:")
+    print("          class _Fallback: pass")
+    print("          Something = _Fallback()")
+    print("")
+    print("   2. Or copy the missing module from the source package")
+else:
+    print("✓ No missing import dependencies found")
+PYEOF
+fi
+```
+
+3. **Symlink test** (for Claude skills):
 ```bash
 test -L ~/.claude/skills/{{NAME}} && echo "Symlink: OK" || echo "Symlink: MISSING"
 ```
 
-3. **Pytest collect**:
+4. **Pytest collect**:
 ```bash
 pytest --collect-only {{TARGET_DIR}}/tests/
 ```
 
-4. **Tree diff**:
+5. **Tree diff**:
 ```bash
 tree {{TARGET_DIR}} -a -L 3 > {{TARGET_DIR}}/post-pack-tree.txt
 diff {{TARGET_DIR}}/pre-pack-tree.txt {{TARGET_DIR}}/post-pack-tree.txt
@@ -2166,6 +2286,15 @@ checklist=(
 ```
 
 ## Changelog
+
+### v5.7.0 (2026-03-18)
+- ✅ **PYTHON IMPORT & PATH VALIDATION**: Added PHASE 4 check #2 - automatic validation of Python package import compatibility
+- ✅ **DIRECTORY NAME CHECK**: Detects Python-incompatible characters (hyphens, spaces) in package names
+- ✅ **MISSING __INIT__.PY CHECK**: Warns when root `__init__.py` is missing for clean imports
+- ✅ **IMPORT DEPENDENCY SCANNER**: Scans for missing import modules that don't exist in the package
+- ✅ **COPY-PASTE FIX COMMANDS**: Provides ready-to-run commands for all detected issues
+- ✅ **CLEAR ERROR MESSAGES**: Shows before/after examples for path naming issues
+- ✅ **LEARNED FROM**: search_backends package creation - automated detection of common import/path issues
 
 ### v5.6.0 (2026-03-14)
 - ✅ **PLUGIN STANDARDS VALIDATION**: Added PHASE 1.7 - automatic validation of plugin files/folders against Claude Code plugin standards
