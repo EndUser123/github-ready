@@ -1,7 +1,7 @@
 ---
 name: github-ready
-version: 5.7.0
-description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, automatic plugin standards validation, and Python import/path validation.
+version: 5.8.0
+description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. **DEFAULT**: Creates Claude Code Plugins for all new packages. Python libraries require explicit confirmation for PyPI/non-Claude usage. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, automatic plugin standards validation, and Python import/path validation.
 category: scaffolding
 triggers:
   - /github-ready
@@ -23,15 +23,17 @@ suggest:
   - /init
   - /github-public-posting
 ---
-# /github-ready — Universal Package Creator & Portfolio Polisher v5.7.0
+# /github-ready — Universal Package Creator & Portfolio Polisher v5.8.0
 
 ## Purpose
+
+**DEFAULT BEHAVIOR**: Create **Claude Code Plugins** for all new packages. Plugins are the default unless you explicitly confirm you need PyPI distribution or non-Claude usage.
 
 **PRIMARY GOAL**: Create **Claude Code Plugins** for packages with hooks, skills, or Claude Code integration.
 
 **SECONDARY GOAL**: Convert existing Python libraries to plugins (brownfield conversion).
 
-**ADVANCED USE CASE**: Create pure Python backend libraries (pip-installable, no hooks/skills) — only when plugin architecture isn't appropriate.
+**EXCEPTION ONLY**: Create pure Python backend libraries (pip-installable, no hooks/skills) — requires explicit confirmation that PyPI distribution or non-Claude usage is needed.
 
 All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD workflows, coverage metrics, and media assets.
 
@@ -74,9 +76,9 @@ This skill includes utility scripts and reference documentation:
 
 ### Constitution/Constraints
 - Per CLAUDE.md: Solo-dev environment with pragmatic solutions
-- **DEFAULT**: Claude Code Plugins for packages with hooks/skills (`.claude-plugin/`, `core/`, `hooks/`)
+- **DEFAULT**: Claude Code Plugins for **ALL** new packages (`.claude-plugin/`, `core/`, `hooks/`)
+- **EXCEPTION**: Python libraries only for PyPI distribution or non-Claude usage (requires explicit confirmation)
 - **MIGRATION**: Convert existing Python libraries to plugins via brownfield conversion
-- **ADVANCED**: Pure Python libraries (pyproject.toml, src layout) only for backend code without Claude Code integration
 - Windows-compatible links: **Junctions for skill directories** (no admin required, Git-compatible), **Symlinks for individual files** (requires admin or Developer Mode)
   - **CRITICAL**: When using junctions for skill development, add the **junction target** to `.gitignore` to prevent dual git tracking
   - Pattern: Track source (`packages/<name>/skill/`), ignore junction target (`.claude/skills/<name>/`)
@@ -84,9 +86,12 @@ This skill includes utility scripts and reference documentation:
 - Truthfulness required: Only claim what actually exists, don't fabricate features
 
 ### Technical Context
-- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for packages with hooks/skills
+- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for **ALL** new packages
+- **EXCEPTION**: Pure Python libraries (`src/`, `pyproject.toml`) only with explicit confirmation for:
+  - PyPI distribution to external (non-Claude) users
+  - Code that runs outside Claude Code entirely
+  - Pure backend utilities with no Claude integration
 - **CONVERSION**: Brownfield Python library → Plugin conversion (src/ → core/)
-- **ADVANCED**: Pure Python libraries (`src/`, `pyproject.toml`) for backend-only code (no hooks/skills)
 - Portfolio-quality README with badges, architecture flowchart, Quick Start
 - CI/CD workflows with status badges (Python libraries only)
 - NotebookLM integration for AI-generated explainer videos and diagrams
@@ -274,35 +279,69 @@ elif [ -d "{{TARGET_DIR}}/.claude-plugin" ]; then
 elif [ -d "{{TARGET_DIR}}/hook" ]; then
     PACKAGE_TYPE="hook-package"
     echo "Detected: Hook Package"
-# Check for Python library (src/ or pyproject.toml)
+# Check for Python library (src/ or pyproject.toml) - EXISTING LIBRARY
 elif [ -d "{{TARGET_DIR}}/src" ] || [ -f "{{TARGET_DIR}}/pyproject.toml" ]; then
-    PACKAGE_TYPE="python-library"
-    echo "Detected: Python Library"
+    echo "Existing Python library detected: src/ or pyproject.toml found"
 
-    # BROWNFIELD DETECTION: Check if Python library can be converted to plugin
-    if [ -d "{{TARGET_DIR}}/src" ] && [ -f "{{TARGET_DIR}}/pyproject.toml" ]; then
+    # BROWNFIELD DETECTION: Ask if user wants to convert to plugin (RECOMMENDED)
+    echo ""
+    echo "⚠️  DEFAULT: Convert to Claude Code Plugin (recommended)"
+    echo ""
+    echo "Claude Code Plugins are preferred because:"
+    echo "  ✅ Auto-discovery via /plugin install"
+    echo "  ✅ No pip install required"
+    echo "  ✅ Hooks auto-register"
+    echo "  ✅ Works seamlessly with Claude Code"
+    echo ""
+    echo "Python Libraries are ONLY for:"
+    echo "  • PyPI distribution to non-Claude users"
+    echo "  • Code that runs outside Claude Code entirely"
+    echo "  • Pure backend utilities with no Claude integration"
+    echo ""
+    read -p "Convert to Claude Code Plugin? (Y/n): " CONVERT_TO_PLUGIN
+    if [ "$CONVERT_TO_PLUGIN" != "n" ] && [ "$CONVERT_TO_PLUGIN" != "N" ]; then
+        PACKAGE_TYPE="brownfield-plugin"
+        echo "✓ Proceeding with brownfield conversion..."
         echo ""
-        echo "⚠️  Python library detected: src/{{NAME}}/ with pyproject.toml"
-        echo "Convert to Claude Code plugin?"
-        echo "  • Removes pip install requirement"
-        echo "  • Auto-registers hooks"
-        echo "  • Changes: src/ → core/, adds plugin.json/hooks.json"
+        echo "Details: This will backup your current structure, migrate src/ to core/,"
+        echo "remove pyproject.toml, and add plugin configuration files."
+        echo "Rollback available if needed."
+    else
+        PACKAGE_TYPE="python-library"
         echo ""
-        read -p "Convert to plugin? (y/n): " CONVERT_TO_PLUGIN
-        if [ "$CONVERT_TO_PLUGIN" = "y" ]; then
-            PACKAGE_TYPE="brownfield-plugin"
-            echo "✓ Proceeding with brownfield conversion..."
-            echo ""
-            echo "Details: This will backup your current structure, migrate src/ to core/,"
-            echo "remove pyproject.toml, and add plugin configuration files."
-            echo "Rollback available if needed."
-        else
-            echo "→ Keeping as Python library"
-        fi
+        echo "⚠️  EXCEPTION CONFIRMED: Keeping as Python library"
+        echo "   This is appropriate ONLY for PyPI distribution or non-Claude usage."
     fi
 else
-    PACKAGE_TYPE="python-library"
-    echo "Detected: Python Library (new)"
+    # NEW PACKAGE - DEFAULT TO CLAUDE CODE PLUGIN
+    echo "New package detected - defaulting to Claude Code Plugin"
+    echo ""
+    echo "Claude Code Plugin structure will be created:"
+    echo "  • .claude-plugin/ (plugin metadata)"
+    echo "  • core/ (Python code)"
+    echo "  • hooks/ (optional hook configuration)"
+    echo "  • README.md, LICENSE"
+    echo ""
+    echo "💡 Use Claude Code Plugins for:"
+    echo "   • Hooks and skills for Claude Code"
+    echo "   • Packages used by other Claude Code plugins"
+    echo "   • Any code integrated with Claude Code"
+    echo ""
+
+    # Only ask about Python library if user explicitly wants it
+    read -p "Create Python Library instead (for PyPI/non-Claude)? (y/N): " PYTHON_LIB
+    if [ "$PYTHON_LIB" = "y" ] || [ "$PYTHON_LIB" = "Y" ]; then
+        PACKAGE_TYPE="python-library"
+        echo ""
+        echo "⚠️  EXCEPTION CONFIRMED: Creating Python Library"
+        echo "   This is appropriate ONLY for:"
+        echo "   • PyPI distribution to external users"
+        echo "   • Code that runs outside Claude Code"
+        echo "   • Pure backend utilities with no Claude integration"
+    else
+        PACKAGE_TYPE="claude-plugin"
+        echo "✓ Creating Claude Code Plugin (default)"
+    fi
 fi
 ```
 
@@ -310,10 +349,10 @@ fi
 
 | Type | Trigger | Structure | Use Case | Recommendation |
 |------|---------|-----------|----------|----------------|
-| `claude-plugin` | `.claude-plugin/` directory exists | `.claude-plugin/` + `core/` + `hooks/` + README | **DEFAULT**: Packages with hooks/skills | ✅ **Primary pattern** |
+| `claude-plugin` | **NEW PACKAGE** (default) | `.claude-plugin/` + `core/` + `hooks/` + README | **DEFAULT**: All new packages | ✅ **Default for new packages** |
 | `claude-plugin+mcp` | `.claude-plugin/` + `mcp_server.py` or `mcp/` | `.claude-plugin/` + `core/` + `hooks/` + `.mcp.json` | Plugins with MCP server | ✅ **For MCP integration** |
-| `brownfield-plugin` | Python library + user confirms | `src/` → `core/` conversion | Convert existing Python lib to plugin | ✅ **Migration path** |
-| `python-library` | `src/` or `pyproject.toml` exists (no conversion) | `src/{{NAME}}/` + `tests/` + pyproject.toml | ⚠️ **ADVANCED**: Pure backend code (no hooks/skills) | ⚠️ **Only when plugins inappropriate** |
+| `brownfield-plugin` | Python library + user confirms | `src/` → `core/` conversion | Convert existing Python lib to plugin | ✅ **Recommended for existing libs** |
+| `python-library` | `src/` or `pyproject.toml` + **explicit exception** | `src/{{NAME}}/` + `tests/` + pyproject.toml | ⚠️ **EXCEPTION**: PyPI/non-Claude only | ⚠️ **Requires explicit confirmation** |
 | `claude-skill` | `SKILL.md` exists | `skill/` only (no `src/`, no pyproject.toml) | Standalone Claude skills | ℹ️ **For skill-only packages** |
 | `hook-package` | `hook/` directory exists | `hook/` + README | Legacy hook distribution | ℹ️ **Use plugin pattern instead** |
 
@@ -382,7 +421,7 @@ cmd /c "mklink SessionStart_handoff_restore.py p:\packages\handoff\core\hooks\Se
 - **`scripts/`** - Helper scripts and utilities (Python code goes here)
 - **`.github/`** - GitHub workflows
 
-**⚠️ CRITICAL CORRECTION FROM v5.7.0**:
+**⚠️ CRITICAL CORRECTION FROM v5.8.0**:
 - ❌ **WRONG**: `core/` directory is NOT in official spec
 - ✅ **CORRECT**: Python code in `scripts/` or component directories
 - ✅ **CORRECT**: Components at ROOT level (not nested in `.claude-plugin/`)
@@ -2286,6 +2325,15 @@ checklist=(
 ```
 
 ## Changelog
+
+### v5.8.0 (2026-03-18)
+- ✅ **DEFAULT TO CLAUDE CODE PLUGINS**: Changed package type detection to default to Claude Code Plugins for ALL new packages
+- ✅ **EXCEPTION CONFIRMATION**: Python libraries now require explicit confirmation with clear explanation of when they're appropriate
+- ✅ **IMPROVED PROMPTS**: Added clear "when to use each" guidance in the detection prompts
+- ✅ **UPDATED DOCUMENTATION**: All references to package types now reflect plugins as the default
+- ✅ **CLARIFIED CONSTRAINTS**: Constitution/Constraints section now explicitly states plugins are the default
+- ✅ **RECOMMENDED CONVERSION**: Existing Python libraries prompted to convert to plugins by default (opt-out instead of opt-in)
+- ✅ **LEARNED FROM**: search_backends creation - plugins should be the default, Python libraries the exception
 
 ### v5.7.0 (2026-03-18)
 - ✅ **PYTHON IMPORT & PATH VALIDATION**: Added PHASE 4 check #2 - automatic validation of Python package import compatibility
