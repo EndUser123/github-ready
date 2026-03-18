@@ -1,7 +1,7 @@
 ---
 name: github-ready
-version: 5.9.0
-description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. **DEFAULT**: Creates Claude Code Plugins for all new packages. Python libraries require explicit confirmation for PyPI/non-Claude usage. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, automatic plugin standards validation, Python import/path validation, and GitHub publication functionality.
+version: 5.6.0
+description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, and automatic plugin standards validation.
 category: scaffolding
 triggers:
   - /github-ready
@@ -17,23 +17,21 @@ workflow_steps:
   - generate_badges
   - create_documentation
   - validate_package
-  - github_publication
   - cleanup_obsolete_files
 
 suggest:
   - /init
+  - /github-public-posting
 ---
-# /github-ready — Universal Package Creator & Portfolio Polisher v5.9.0
+# /github-ready — Universal Package Creator & Portfolio Polisher v5.6.0
 
 ## Purpose
-
-**DEFAULT BEHAVIOR**: Create **Claude Code Plugins** for all new packages. Plugins are the default unless you explicitly confirm you need PyPI distribution or non-Claude usage.
 
 **PRIMARY GOAL**: Create **Claude Code Plugins** for packages with hooks, skills, or Claude Code integration.
 
 **SECONDARY GOAL**: Convert existing Python libraries to plugins (brownfield conversion).
 
-**EXCEPTION ONLY**: Create pure Python backend libraries (pip-installable, no hooks/skills) — requires explicit confirmation that PyPI distribution or non-Claude usage is needed.
+**ADVANCED USE CASE**: Create pure Python backend libraries (pip-installable, no hooks/skills) — only when plugin architecture isn't appropriate.
 
 All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD workflows, coverage metrics, and media assets.
 
@@ -76,9 +74,9 @@ This skill includes utility scripts and reference documentation:
 
 ### Constitution/Constraints
 - Per CLAUDE.md: Solo-dev environment with pragmatic solutions
-- **DEFAULT**: Claude Code Plugins for **ALL** new packages (`.claude-plugin/`, `core/`, `hooks/`)
-- **EXCEPTION**: Python libraries only for PyPI distribution or non-Claude usage (requires explicit confirmation)
+- **DEFAULT**: Claude Code Plugins for packages with hooks/skills (`.claude-plugin/`, `core/`, `hooks/`)
 - **MIGRATION**: Convert existing Python libraries to plugins via brownfield conversion
+- **ADVANCED**: Pure Python libraries (pyproject.toml, src layout) only for backend code without Claude Code integration
 - Windows-compatible links: **Junctions for skill directories** (no admin required, Git-compatible), **Symlinks for individual files** (requires admin or Developer Mode)
   - **CRITICAL**: When using junctions for skill development, add the **junction target** to `.gitignore` to prevent dual git tracking
   - Pattern: Track source (`packages/<name>/skill/`), ignore junction target (`.claude/skills/<name>/`)
@@ -86,12 +84,9 @@ This skill includes utility scripts and reference documentation:
 - Truthfulness required: Only claim what actually exists, don't fabricate features
 
 ### Technical Context
-- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for **ALL** new packages
-- **EXCEPTION**: Pure Python libraries (`src/`, `pyproject.toml`) only with explicit confirmation for:
-  - PyPI distribution to external (non-Claude) users
-  - Code that runs outside Claude Code entirely
-  - Pure backend utilities with no Claude integration
+- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for packages with hooks/skills
 - **CONVERSION**: Brownfield Python library → Plugin conversion (src/ → core/)
+- **ADVANCED**: Pure Python libraries (`src/`, `pyproject.toml`) for backend-only code (no hooks/skills)
 - Portfolio-quality README with badges, architecture flowchart, Quick Start
 - CI/CD workflows with status badges (Python libraries only)
 - NotebookLM integration for AI-generated explainer videos and diagrams
@@ -279,69 +274,35 @@ elif [ -d "{{TARGET_DIR}}/.claude-plugin" ]; then
 elif [ -d "{{TARGET_DIR}}/hook" ]; then
     PACKAGE_TYPE="hook-package"
     echo "Detected: Hook Package"
-# Check for Python library (src/ or pyproject.toml) - EXISTING LIBRARY
+# Check for Python library (src/ or pyproject.toml)
 elif [ -d "{{TARGET_DIR}}/src" ] || [ -f "{{TARGET_DIR}}/pyproject.toml" ]; then
-    echo "Existing Python library detected: src/ or pyproject.toml found"
+    PACKAGE_TYPE="python-library"
+    echo "Detected: Python Library"
 
-    # BROWNFIELD DETECTION: Ask if user wants to convert to plugin (RECOMMENDED)
-    echo ""
-    echo "⚠️  DEFAULT: Convert to Claude Code Plugin (recommended)"
-    echo ""
-    echo "Claude Code Plugins are preferred because:"
-    echo "  ✅ Auto-discovery via /plugin install"
-    echo "  ✅ No pip install required"
-    echo "  ✅ Hooks auto-register"
-    echo "  ✅ Works seamlessly with Claude Code"
-    echo ""
-    echo "Python Libraries are ONLY for:"
-    echo "  • PyPI distribution to non-Claude users"
-    echo "  • Code that runs outside Claude Code entirely"
-    echo "  • Pure backend utilities with no Claude integration"
-    echo ""
-    read -p "Convert to Claude Code Plugin? (Y/n): " CONVERT_TO_PLUGIN
-    if [ "$CONVERT_TO_PLUGIN" != "n" ] && [ "$CONVERT_TO_PLUGIN" != "N" ]; then
-        PACKAGE_TYPE="brownfield-plugin"
-        echo "✓ Proceeding with brownfield conversion..."
+    # BROWNFIELD DETECTION: Check if Python library can be converted to plugin
+    if [ -d "{{TARGET_DIR}}/src" ] && [ -f "{{TARGET_DIR}}/pyproject.toml" ]; then
         echo ""
-        echo "Details: This will backup your current structure, migrate src/ to core/,"
-        echo "remove pyproject.toml, and add plugin configuration files."
-        echo "Rollback available if needed."
-    else
-        PACKAGE_TYPE="python-library"
+        echo "⚠️  Python library detected: src/{{NAME}}/ with pyproject.toml"
+        echo "Convert to Claude Code plugin?"
+        echo "  • Removes pip install requirement"
+        echo "  • Auto-registers hooks"
+        echo "  • Changes: src/ → core/, adds plugin.json/hooks.json"
         echo ""
-        echo "⚠️  EXCEPTION CONFIRMED: Keeping as Python library"
-        echo "   This is appropriate ONLY for PyPI distribution or non-Claude usage."
+        read -p "Convert to plugin? (y/n): " CONVERT_TO_PLUGIN
+        if [ "$CONVERT_TO_PLUGIN" = "y" ]; then
+            PACKAGE_TYPE="brownfield-plugin"
+            echo "✓ Proceeding with brownfield conversion..."
+            echo ""
+            echo "Details: This will backup your current structure, migrate src/ to core/,"
+            echo "remove pyproject.toml, and add plugin configuration files."
+            echo "Rollback available if needed."
+        else
+            echo "→ Keeping as Python library"
+        fi
     fi
 else
-    # NEW PACKAGE - DEFAULT TO CLAUDE CODE PLUGIN
-    echo "New package detected - defaulting to Claude Code Plugin"
-    echo ""
-    echo "Claude Code Plugin structure will be created:"
-    echo "  • .claude-plugin/ (plugin metadata)"
-    echo "  • core/ (Python code)"
-    echo "  • hooks/ (optional hook configuration)"
-    echo "  • README.md, LICENSE"
-    echo ""
-    echo "💡 Use Claude Code Plugins for:"
-    echo "   • Hooks and skills for Claude Code"
-    echo "   • Packages used by other Claude Code plugins"
-    echo "   • Any code integrated with Claude Code"
-    echo ""
-
-    # Only ask about Python library if user explicitly wants it
-    read -p "Create Python Library instead (for PyPI/non-Claude)? (y/N): " PYTHON_LIB
-    if [ "$PYTHON_LIB" = "y" ] || [ "$PYTHON_LIB" = "Y" ]; then
-        PACKAGE_TYPE="python-library"
-        echo ""
-        echo "⚠️  EXCEPTION CONFIRMED: Creating Python Library"
-        echo "   This is appropriate ONLY for:"
-        echo "   • PyPI distribution to external users"
-        echo "   • Code that runs outside Claude Code"
-        echo "   • Pure backend utilities with no Claude integration"
-    else
-        PACKAGE_TYPE="claude-plugin"
-        echo "✓ Creating Claude Code Plugin (default)"
-    fi
+    PACKAGE_TYPE="python-library"
+    echo "Detected: Python Library (new)"
 fi
 ```
 
@@ -349,10 +310,10 @@ fi
 
 | Type | Trigger | Structure | Use Case | Recommendation |
 |------|---------|-----------|----------|----------------|
-| `claude-plugin` | **NEW PACKAGE** (default) | `.claude-plugin/` + `core/` + `hooks/` + README | **DEFAULT**: All new packages | ✅ **Default for new packages** |
+| `claude-plugin` | `.claude-plugin/` directory exists | `.claude-plugin/` + `core/` + `hooks/` + README | **DEFAULT**: Packages with hooks/skills | ✅ **Primary pattern** |
 | `claude-plugin+mcp` | `.claude-plugin/` + `mcp_server.py` or `mcp/` | `.claude-plugin/` + `core/` + `hooks/` + `.mcp.json` | Plugins with MCP server | ✅ **For MCP integration** |
-| `brownfield-plugin` | Python library + user confirms | `src/` → `core/` conversion | Convert existing Python lib to plugin | ✅ **Recommended for existing libs** |
-| `python-library` | `src/` or `pyproject.toml` + **explicit exception** | `src/{{NAME}}/` + `tests/` + pyproject.toml | ⚠️ **EXCEPTION**: PyPI/non-Claude only | ⚠️ **Requires explicit confirmation** |
+| `brownfield-plugin` | Python library + user confirms | `src/` → `core/` conversion | Convert existing Python lib to plugin | ✅ **Migration path** |
+| `python-library` | `src/` or `pyproject.toml` exists (no conversion) | `src/{{NAME}}/` + `tests/` + pyproject.toml | ⚠️ **ADVANCED**: Pure backend code (no hooks/skills) | ⚠️ **Only when plugins inappropriate** |
 | `claude-skill` | `SKILL.md` exists | `skill/` only (no `src/`, no pyproject.toml) | Standalone Claude skills | ℹ️ **For skill-only packages** |
 | `hook-package` | `hook/` directory exists | `hook/` + README | Legacy hook distribution | ℹ️ **Use plugin pattern instead** |
 
@@ -421,7 +382,7 @@ cmd /c "mklink SessionStart_handoff_restore.py p:\packages\handoff\core\hooks\Se
 - **`scripts/`** - Helper scripts and utilities (Python code goes here)
 - **`.github/`** - GitHub workflows
 
-**⚠️ CRITICAL CORRECTION FROM v5.8.0**:
+**⚠️ CRITICAL CORRECTION FROM v5.6.0**:
 - ❌ **WRONG**: `core/` directory is NOT in official spec
 - ✅ **CORRECT**: Python code in `scripts/` or component directories
 - ✅ **CORRECT**: Components at ROOT level (not nested in `.claude-plugin/`)
@@ -1125,111 +1086,6 @@ ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:no
 ```
 
 **For brownfield conversions**: See \`references/brownfield-conversion.md\` for README update instructions (migration notice, rollback instructions, updated usage examples).
-
-### Create Required Documentation Files
-
-**CRITICAL**: All packages MUST have these files for GitHub readiness:
-
-```bash
-# 1. Create AGENTS.md from template
-if [ ! -f "{{TARGET_DIR}}/AGENTS.md" ]; then
-  cat > "{{TARGET_DIR}}/AGENTS.md" << 'AGENTS_EOF'
-# AGENTS.md
-
-> AI-maintainable documentation for the {{package_name}} package.
-
-## Package Overview
-
-**{{package_name}}** is a {{package_type}} that {{one_sentence_description}}.
-
-## Directory Structure
-
-\`\`\`
-{{package_name}}/
-├── .claude-plugin/         # Plugin metadata
-├── core/                   # Python source code
-├── hooks/                 # Hook configuration
-├── tests/                 # Tests
-├── README.md
-├── CHANGELOG.md
-├── LICENSE
-└── AGENTS.md              # This file
-\`\`\`
-
-## Development Setup
-
-{{local_dev_instructions}}
-
-## Running Tests
-
-\`\`\`bash
-pytest tests/ -v
-\`\`\`
-AGENTS_EOF
-  echo "✓ Created AGENTS.md"
-else
-  echo "✓ AGENTS.md already exists"
-fi
-
-# 2. Create CHANGELOG.md from template
-if [ ! -f "{{TARGET_DIR}}/CHANGELOG.md" ]; then
-  cat > "{{TARGET_DIR}}/CHANGELOG.md" << 'CHANGELOG_EOF'
-# Changelog
-
-All notable changes to {{package_name}} will be documented in this file.
-
-## [Unreleased]
-
-### Added
-- Initial release
-CHANGELOG_EOF
-  echo "✓ Created CHANGELOG.md"
-else
-  echo "✓ CHANGELOG.md already exists"
-fi
-
-# 3. Create CONTRIBUTING.md from template
-if [ ! -f "{{TARGET_DIR}}/CONTRIBUTING.md" ]; then
-  cat > "{{TARGET_DIR}}/CONTRIBUTING.md" << 'CONTRIBUTING_EOF'
-# Contributing to {{package_name}}
-
-Thanks for your interest in contributing!
-
-## Development Setup
-
-\`\`\`bash
-# Clone and setup
-git clone https://github.com/{{username}}/{{package_name}}.git
-cd {{package_name}}
-\`\`\`
-
-## Testing
-
-\`\`\`bash
-pytest tests/ -v
-\`\`\`
-
-## Pull Requests
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-CONTRIBUTING_EOF
-  echo "✓ Created CONTRIBUTING.md"
-else
-  echo "✓ CONTRIBUTING.md already exists"
-fi
-```
-
-**Verification**: Check that all three files exist:
-```bash
-ls -1 {{TARGET_DIR}}/{AGENTS.md,CHANGELOG.md,CONTRIBUTING.md}
-```
-
----
-
 ## PHASE 4: Validate (1min)
 
 **Objective**: Verify package structure is correct.
@@ -1284,137 +1140,17 @@ if [ "$PLATFORM" = "windows" ]; then
 fi
 ```
 
-2. **Python Import & Path Validation** (CRITICAL for importable packages):
-```bash
-# Check for Python-incompatible directory names
-DIR_NAME=$(basename "{{TARGET_DIR}}")
-if echo "$DIR_NAME" | grep -qE '[- ]'; then
-  echo "❌ ERROR: Directory name contains Python-incompatible characters:"
-  echo "   Found: '$DIR_NAME'"
-  echo "   Issue: Hyphens and spaces break 'import' statements"
-  echo "   Fix: Rename to use underscores"
-  echo ""
-  echo "   Commands to fix:"
-  echo "   cd $(dirname '{{TARGET_DIR}}')"
-  echo "   mv '$DIR_NAME' '${DIR_NAME//[- ]/_}'"
-  echo ""
-  echo "   Before: from $DIR_NAME import Something  # ❌ SyntaxError"
-  echo "   After:  from ${DIR_NAME//[- ]/_} import Something  # ✅ Works"
-  echo ""
-fi
-
-# Check for missing root __init__.py (needed for clean imports)
-if [ -d "{{TARGET_DIR}}/core" ] && [ ! -f "{{TARGET_DIR}}/__init__.py" ]; then
-  echo "⚠️  WARNING: Missing root __init__.py for clean imports"
-  echo "   Issue: Cannot use 'from package_name import Something'"
-  echo "   Fix: Add {{TARGET_DIR}}/__init__.py with:"
-  echo ""
-  echo "   from .core import (
-  echo "       ClassOne,
-  echo "       ClassTwo,
-  echo "   )"
-  echo ""
-  echo "   __all__ = ['ClassOne', 'ClassTwo']"
-  echo ""
-fi
-
-# Check for import dependencies that don't exist (only for Python packages)
-if [ -d "{{TARGET_DIR}}/core" ]; then
-  echo "🔍 Scanning for missing import dependencies..."
-
-  # Find all Python files and extract their imports
-  cd "{{TARGET_DIR}}"
-  python3 << 'PYEOF'
-import ast
-import sys
-from pathlib import Path
-
-# Known internal imports that should have fallbacks
-KNOWN_FALLBACKS = {
-    'config': 'from ...config import config',
-    'settings': 'from ...settings import settings',
-}
-
-issues_found = []
-
-for py_file in Path('core').rglob('*.py'):
-    try:
-        with open(py_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        tree = ast.parse(content, filename=py_file)
-
-        for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom):
-                if node.module:
-                    # Check if it's a relative import to parent modules
-                    if node.level > 0:
-                        parts = node.module.split('.') if node.module else []
-                        full_import = '.' * node.level + ('.'.join(parts) if parts else '')
-
-                        # Check if this is a known fallback pattern
-                        has_fallback = False
-                        for alias in node.names:
-                            imported_name = alias.name
-                            for fallback_name, fallback_pattern in KNOWN_FALLBACKS.items():
-                                if fallback_name in node.module:
-                                    # Check if file has try/except for this import
-                                    if 'try:' in content and 'except ImportError' in content:
-                                        has_fallback = True
-                                        break
-
-                        if not has_fallback and node.level >= 2:
-                            # Check if the imported module actually exists
-                            # For level 2+ imports (..module), check parent directories
-                            check_path = py_file
-                            for _ in range(node.level - 1):
-                                check_path = check_path.parent
-
-                            if node.module:
-                                for part in node.module.split('.'):
-                                    check_path = check_path / part
-                                    if not check_path.exists() and not check_path.with_suffix('.py').exists():
-                                        issues_found.append({
-                                            'file': str(py_file.relative_to('core')),
-                                            'import': full_import + ('.' + node.module if node.module else ''),
-                                            'issue': 'Module does not exist'
-                                        })
-                                        break
-    except Exception as e:
-        pass  # Skip files that can't be parsed
-
-if issues_found:
-    print("❌ Found missing import dependencies:")
-    for issue in issues_found:
-        print(f"   File: {issue['file']}")
-        print(f"   Import: {issue['import']}")
-        print(f"   Issue: {issue['issue']}")
-        print("")
-    print("💡 Suggested fixes:")
-    print("   1. Add try/except fallback:")
-    print("      try:")
-    print("          from ...module import Something")
-    print("      except ImportError:")
-    print("          class _Fallback: pass")
-    print("          Something = _Fallback()")
-    print("")
-    print("   2. Or copy the missing module from the source package")
-else:
-    print("✓ No missing import dependencies found")
-PYEOF
-fi
-```
-
-3. **Symlink test** (for Claude skills):
+2. **Symlink test** (for Claude skills):
 ```bash
 test -L ~/.claude/skills/{{NAME}} && echo "Symlink: OK" || echo "Symlink: MISSING"
 ```
 
-4. **Pytest collect**:
+3. **Pytest collect**:
 ```bash
 pytest --collect-only {{TARGET_DIR}}/tests/
 ```
 
-5. **Tree diff**:
+4. **Tree diff**:
 ```bash
 tree {{TARGET_DIR}} -a -L 3 > {{TARGET_DIR}}/post-pack-tree.txt
 diff {{TARGET_DIR}}/pre-pack-tree.txt {{TARGET_DIR}}/post-pack-tree.txt
@@ -2322,48 +2058,6 @@ jobs:
         pytest tests/ -v --cov=core --cov-report=term
 ```
 
-**Implementation - Create CI/CD Workflow:**
-
-```bash
-# Create .github/workflows directory
-mkdir -p "{{TARGET_DIR}}/.github/workflows"
-
-# Create test workflow
-cat > "{{TARGET_DIR}}/.github/workflows/test.yml" << 'CI_EOF'
-name: Tests
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.14'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest pytest-cov
-
-    - name: Run tests
-      run: |
-        pytest tests/ -v --cov=core --cov-report=term
-CI_EOF
-
-echo "✓ Created .github/workflows/test.yml"
-```
-
 **IMPORTANT:**
 - ❌ **NO Codecov integration** - Do NOT upload coverage to external services
 - ✅ Local coverage reporting only (--cov-report=term)
@@ -2376,245 +2070,8 @@ echo "✓ Created .github/workflows/test.yml"
 - Test coverage reporting and badges
 
 **Output**: Portfolio-ready repository with badges, CI/CD, docs, and examples.
-
----
-
-## PHASE 6: GitHub Publication (End-to-End)
-
-**Objective**: Publish package to GitHub with complete repository creation, monorepo extraction, and verification.
-
-**Trigger**: Explicitly invoked with `/github-ready <package> --publish` or after user confirmation in PHASE 5.
-
-**What this does**:
-- Extracts package from monorepo (if needed)
-- Creates GitHub repository via API/CLI
-- Automates author/license field population
-- Runs package-specific validation
-- Verifies publication success
-
-**Prerequisites**:
-- GitHub CLI (`gh`) installed and authenticated (recommended)
-- OR `GITHUB_TOKEN` environment variable set
-- Git 2.30+ (for `git subtree split`)
-
-**Workflow**: EXTRACT → CREATE → CONFIGURE → VALIDATE → VERIFY
-
-### PHASE 6.1: Extract from Monorepo (if needed)
-
-**Objective**: Extract package from monorepo structure as standalone repository.
-
-**Detection**: Check if target is inside a monorepo structure
-
-```bash
-# Detect monorepo membership
-if [[ "$(git -C "$TARGET_DIR" remote -v)" == *"P.git"* ]] || [[ "$TARGET_DIR" == *"/packages/"* ]]; then
-    IN_MONOREPO=true
-fi
-```
-
-**Extraction Methods:**
-
-**Option A: Subtree Split (preserves history)**
-```bash
-# Extract package history from monorepo
-git subtree split --prefix=packages/$NAME --branch=split-$NAME
-```
-
-**Option B: Fresh Init (clean slate)**
-```bash
-# Create new git repo with fresh history
-cd "$TARGET_DIR"
-rm -rf .git
-git init
-git add .
-git commit -m "Initial commit of $NAME"
-```
-
-**Decision Matrix:**
-- Use **subtree split** if: Package has meaningful commit history worth preserving
-- Use **fresh init** if: Package is new, or monorepo history is noisy/irrelevant
-
-**Script**: `packages/github-ready/scripts/extract_from_monorepo.sh`
-
-### PHASE 6.2: Create GitHub Repository
-
-**Objective**: Create GitHub repository and push code.
-
-**Implementation:**
-```bash
-# Create GitHub repository
-gh repo create "$NAME" \
-    --public \
-    --description="$DESCRIPTION" \
-    --source="$TARGET_DIR" \
-    --remote=origin \
-    --push
-```
-
-**Fallback (manual instructions):**
-If `gh` not available, display manual creation steps with curl API example.
-
-**Script**: `packages/github-ready/scripts/create_github_repo.sh`
-
-### PHASE 6.3: Author/License Automation
-
-**Objective**: Auto-populate author and license fields.
-
-**Detect/Configure Author:**
-
-```bash
-# Auto-detect from git config
-GIT_NAME=$(git config user.name)
-GIT_EMAIL=$(git config user.email)
-
-# Fallback to env vars
-if [[ -z "$GIT_NAME" ]]; then
-    GIT_NAME="${AUTHOR_NAME:-Your Name}"
-fi
-```
-
-**Update plugin.json:**
-```json
-{
-  "name": "{{package_name}}",
-  "description": "{{DESCRIPTION}}",
-  "author": {
-    "name": "{{AUTHOR_NAME}}",
-    "email": "{{AUTHOR_EMAIL}}"
-  }
-}
-```
-
-**License Detection/Generation:**
-- Scan for existing LICENSE file
-- If missing, generate MIT license with detected author info
-- Update `.claude-plugin/plugin.json` with license field
-
-### PHASE 6.4: Package-Specific Validation
-
-**Objective**: Run validation checks specific to package type.
-
-**Configuration**: `packages/github-ready/resources/package_validations.json`
-
-**Target-Specific Checks:**
-
-| Package Type | Validation Checks |
-|--------------|-------------------|
-| `search-research` | - API key documentation present<br>- Provider list complete<br>- Test coverage for web backends |
-| `skill-guard` | - Compliance rules documented<br>- Validation examples provided<br>- Hook stderr compliance verified |
-| `loop-core` | - Terminal isolation documented<br>- State management tests present<br>- Multi-terminal safety verified |
-| **generic** | - All plugin standards (PHASE 1.7)<br>- Platform compatibility (PHASE 4)<br>- Python import validation (PHASE 4) |
-
-**Implementation:**
-```bash
-# Load validation rules from package_validations.json
-VALIDATIONS=$(jq ".package_types.$PACKAGE_TYPE.validations" package_validations.json)
-
-# Run each validation check
-for validation in $(echo "$VALIDATIONS" | jq -r '.[] | @base64'); do
-    # Run check and report result
-done
-```
-
-**Severity Levels:**
-- **critical**: Must fix before publication - blocks GitHub creation
-- **error**: Should fix before publication - strongly recommended
-- **warning**: Consider fixing before publication - quality improvement
-- **info**: Informational - no action required
-
-### PHASE 6.5: Verification
-
-**Objective**: Verify publication was successful.
-
-**Post-Publication Checks:**
-
-```bash
-# 1. Verify repository exists
-gh repo view "$NAME" --json name,url,visibility
-
-# 2. Verify README renders
-curl -s "https://raw.githubusercontent.com/$USER/$NAME/main/README.md" | head -20
-
-# 3. Verify badges load
-# (Parse README for badge URLs and check HTTP 200)
-
-# 4. Create summary report
-cat > GITHUB_PUBLISHED.md <<EOF
-# GitHub Publication Complete
-
-**Repository:** https://github.com/$USER/$NAME
-**Visibility:** Public
-**Initial Release:** v${VERSION}
-
-## Next Steps
-- [ ] Add topics/tags to repo
-- [ ] Enable GitHub Actions (if applicable)
-- [ ] Create first meaningful release
-EOF
-```
-
-**Output**: `GITHUB_PUBLISHED.md` with repository URL, visibility status, and next steps.
-
----
-
-## PHASE 7: Cleanup (Auto-invoked)
-
-**Objective**: Detect and remove obsolete files after refactoring/scaffolding.
-
-**When**: Automatically runs after PHASE 6 (GitHub Publication) or PHASE 5 (Portfolio Polish) completes.
-
-**What this detects**:
-- **Backup files** (*.backup-*, *.old, *.bak) - Shows file size and removal command
-- **Orphaned test files** - Tests for modules that no longer exist
-- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs
-- **Duplicate implementations** - Known refactoring patterns (e.g., skill_enforcement → skill_first_gate)
-
-**Output**: `CLEANUP_REPORT.md` with:
-- Categorized list of files to remove
-- Evidence for why each should be removed
-- Bulk removal commands ready to run
-- Commit message template
-
-**Usage**: Review report and manually remove files (recommended for first run).
-
----
-
-## PHASE 8: Git Ready & Recruiter Validation (Auto-invoked)
-
-### PHASE 8.1: Git Ready
-
-**Objective**: Initialize git repository and create initial commit.
-
-**When**: Automatically runs after PHASE 4 (Validate) completes.
-
-**What this does**:
-- Initialize git repository (if not already a git repo): `git init`
-- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`
-- Set main branch: `git branch -M main`
-- Skips if `.git/` directory already exists
-
-**Manual steps** (user does when ready):
-- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`
-- Push to GitHub: `git push -u origin main`
-
-### PHASE 8.2: Recruiter Readiness Validation
-
-**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.
-
-**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.
-
-**Checks performed**:
-- TODO comments in pyproject.toml (suggests incomplete work)
-- Plan files in root (looks messy/unprofessional)
-- Missing CI/CD workflow (reduces perceived professionalism)
-- No tests directory (lack of quality evidence)
-- Version is 0.0.x or 0.1.x (suggests experimental/unstable)
-
-**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)
-
-**Auto-fixes available**: Remove TODOs, move plan files to docs/planning/, create CI/CD workflow, bump version to 0.5.0 or 1.0.0.
-
-**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
+## PHASE 6: Cleanup (Auto-invoked)**Objective**: Detect and remove obsolete files after refactoring/scaffolding.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**What this detects**:- **Backup files** (*.backup-*, *.old, *.bak) - Shows file size and removal command- **Orphaned test files** - Tests for modules that no longer exist- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs- **Duplicate implementations** - Known refactoring patterns (e.g., skill_enforcement → skill_first_gate)**Output**: `CLEANUP_REPORT.md` with:- Categorized list of files to remove- Evidence for why each should be removed- Bulk removal commands ready to run- Commit message template**Usage**: Review report and manually remove files (recommended for first run).
+## PHASE 7: Git Ready (Auto-invoked)**Objective**: Initialize git repository and create initial commit.**When**: Automatically runs after PHASE 4 (Validate) completes.**What this does**:- Initialize git repository (if not already a git repo): `git init`- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`- Set main branch: `git branch -M main`- Skips if `.git/` directory already exists**Manual steps** (user does when ready):- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`- Push to GitHub: `git push -u origin main`## PHASE 7: Recruiter Readiness Validation (Auto-invoked)**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**Checks performed**:- TODO comments in pyproject.toml (suggests incomplete work)- Plan files in root (looks messy/unprofessional)- Missing CI/CD workflow (reduces perceived professionalism)- No tests directory (lack of quality evidence)- Version is 0.0.x or 0.1.x (suggests experimental/unstable)**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)**Auto-fixes available**: Remove TODOs, move plan files to docs/planning/, create CI/CD workflow, bump version to 0.5.0 or 1.0.0.**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
 
 ## Integration
 
@@ -2709,32 +2166,6 @@ checklist=(
 ```
 
 ## Changelog
-
-### v5.9.0 (2026-03-18)
-- ✅ **ADDED TEMPLATES**: Created resources/AGENTS.template.md, CHANGELOG.template.md, CONTRIBUTING.template.md
-- ✅ **EXPLICIT FILE CREATION**: Added implementation code in PHASE 3 to create AGENTS.md, CHANGELOG.md, CONTRIBUTING.md
-- ✅ **CI/CD IMPLEMENTATION**: Added implementation code in PHASE 5 to create .github/workflows/test.yml
-- ✅ **FIXED DOCUMENTATION GAP**: Skill now has actual templates instead of just claiming to generate them
-- ✅ **LEARNED FROM**: Package audit showing most packages missing AGENTS.md, CHANGELOG.md, CI/CD workflows
-- ✅ **GAP ANALYSIS**: Identified that 5/7 packages missing AGENTS.md, 4/7 missing CI/CD, 3/7 missing CHANGELOG.md
-
-### v5.8.0 (2026-03-18)
-- ✅ **DEFAULT TO CLAUDE CODE PLUGINS**: Changed package type detection to default to Claude Code Plugins for ALL new packages
-- ✅ **EXCEPTION CONFIRMATION**: Python libraries now require explicit confirmation with clear explanation of when they're appropriate
-- ✅ **IMPROVED PROMPTS**: Added clear "when to use each" guidance in the detection prompts
-- ✅ **UPDATED DOCUMENTATION**: All references to package types now reflect plugins as the default
-- ✅ **CLARIFIED CONSTRAINTS**: Constitution/Constraints section now explicitly states plugins are the default
-- ✅ **RECOMMENDED CONVERSION**: Existing Python libraries prompted to convert to plugins by default (opt-out instead of opt-in)
-- ✅ **LEARNED FROM**: search_backends creation - plugins should be the default, Python libraries the exception
-
-### v5.7.0 (2026-03-18)
-- ✅ **PYTHON IMPORT & PATH VALIDATION**: Added PHASE 4 check #2 - automatic validation of Python package import compatibility
-- ✅ **DIRECTORY NAME CHECK**: Detects Python-incompatible characters (hyphens, spaces) in package names
-- ✅ **MISSING __INIT__.PY CHECK**: Warns when root `__init__.py` is missing for clean imports
-- ✅ **IMPORT DEPENDENCY SCANNER**: Scans for missing import modules that don't exist in the package
-- ✅ **COPY-PASTE FIX COMMANDS**: Provides ready-to-run commands for all detected issues
-- ✅ **CLEAR ERROR MESSAGES**: Shows before/after examples for path naming issues
-- ✅ **LEARNED FROM**: search_backends package creation - automated detection of common import/path issues
 
 ### v5.6.0 (2026-03-14)
 - ✅ **PLUGIN STANDARDS VALIDATION**: Added PHASE 1.7 - automatic validation of plugin files/folders against Claude Code plugin standards
