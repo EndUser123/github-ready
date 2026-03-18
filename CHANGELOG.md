@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.12.0] - 2026-03-18
+
+### Added
+- **PHASE 6: GitHub Publication** - Complete end-to-end GitHub workflow
+  - PHASE 6.1: Monorepo extraction (subtree split or fresh init methods)
+  - PHASE 6.2: GitHub repository creation via GitHub CLI (gh)
+  - PHASE 6.3: Author/license automation from git config
+  - PHASE 6.4: Package-specific validation rules
+  - PHASE 6.5: Post-publication verification
+- Windows-compatible Python scripts for GitHub publication:
+  - `extract_from_monorepo.py` - Monorepo extraction with history preservation
+  - `create_github_repo.py` - GitHub repo creation with manual fallback
+- `package_validations.json` - Target-specific validation rules for search-research, skill-guard, loop-core, and generic packages
+- Junction setup at `.claude/skills/github-ready/` for automatic skill file syncing
+
+### Changed
+- Renumbered PHASE 6 (Cleanup) → PHASE 7
+- Renumbered PHASE 7 (Git Ready + Recruiter) → PHASE 8
+- Updated workflow_steps frontmatter to include new PHASE 6
+
+## [5.11.0] - 2026-03-18
+
+### Added
+- Initial PHASE 6 implementation planning and structure
+- Package validation framework design
+- Monorepo extraction strategy documentation
+
 ## [5.5.3] - 2026-03-10
 
 ### Added
