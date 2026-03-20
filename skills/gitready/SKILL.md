@@ -1,12 +1,12 @@
 ---
-name: github-ready
+name: gitready
 version: 5.13.0
 description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, and automatic plugin standards validation. Now includes PHASE 6: GitHub Publication and PHASE 7: Repository Finalization.
 category: scaffolding
 triggers:
-  - /github-ready
+  - /gitready
 aliases:
-  - /github-ready
+  - /gitready
 workflow_steps:
   - detect_package_type
   - analyze_existing_structure
@@ -24,7 +24,7 @@ workflow_steps:
 suggest:
   - /init
 ---
-# /github-ready — Universal Package Creator & Portfolio Polisher v5.13.0
+# /gitready — Universal Package Creator & Portfolio Polisher v5.13.0
 
 ## Purpose
 
@@ -523,7 +523,7 @@ cd P:/packages/handoff && bash cleanup_plugin_standards.sh
 None - all violations can be auto-fixed.
 ```
 
-**Integration**: Runs automatically after package type detection, before structure building. Can be invoked standalone with `/github-ready --check-standards`.
+**Integration**: Runs automatically after package type detection, before structure building. Can be invoked standalone with `/gitready --check-standards`.
 
 ---
 
@@ -842,16 +842,16 @@ cmd /c "mklink hook1.py P:\packages\my-plugin\core\hooks\hook1.py"
 cmd /c "mklink hook2.py P:\packages\my-plugin\core\hooks\hook2.py"
 ```
 
-**Real-world example: github-ready package**
+**Real-world example: gitready package**
 
-The github-ready package has:
-- 1 skill: `skills/github-ready/SKILL.md`
+The gitready package has:
+- 1 skill: `skills/gitready/SKILL.md`
 - 0 hooks (no hook files)
 
 Setup:
 ```powershell
 # Just one junction needed
-New-Item -ItemType Junction -Path "P:\.claude\skills\package" -Target "P:\packages\github-ready\skills\github-ready"
+New-Item -ItemType Junction -Path "P:\.claude\skills\package" -Target "P:\packages\gitready\skills\gitready"
 ```
 
 **Summary table:**
@@ -2146,15 +2146,37 @@ jobs:
 - GitHub CLI (`gh`) installed and authenticated
 - Valid GitHub token with repo creation permissions
 
+**Authentication Methods** (use ONE):
+
+1. **GitHub CLI** (recommended):
+   ```bash
+   gh auth login  # Interactive browser or token flow
+   gh auth status # Verify authentication
+   ```
+
+2. **Token-based** (if `gh` not authenticated):
+   - Set `GITHUB_TOKEN` environment variable with a Personal Access Token
+   - Token needs `repo` scope for creating repositories
+   - Use GitHub API directly:
+     ```bash
+     curl -H "Authorization: token $GITHUB_TOKEN" \
+       https://api.github.com/user/repos \
+       -d '{"name":"my-package","public":true}'
+     ```
+
+3. **Manual fallback** (if no token available):
+   - Create repository at https://github.com/new
+   - Add remote and push: `git remote add origin https://github.com/USER/REPO.git && git push -u origin main`
+
 **Usage**:
 ```bash
 # Publish to GitHub
-/github-ready my-package --publish
+/gitready my-package --publish
 
 # Or manually after package creation
 cd P:/packages/my-package
-python ../github-ready/scripts/extract_from_monorepo.py . my-package
-python ../github-ready/scripts/create_github_repo.py my-package . "My awesome package"
+python ../gitready/scripts/extract_from_monorepo.py . my-package
+python ../gitready/scripts/create_github_repo.py my-package . "My awesome package"
 ```
 
 **Output**: Public GitHub repository with code pushed and ready for use.
@@ -2198,11 +2220,11 @@ python ../github-ready/scripts/create_github_repo.py my-package . "My awesome pa
 **Usage**:
 ```bash
 # Finalize after GitHub publication
-/github-ready my-package --publish --finalize
+/gitready my-package --publish --finalize
 
 # Or manually after repo creation
 cd P:/packages/my-package
-python ../github-ready/scripts/finalize_github_repo.py my-package . --package-type plugin
+python ../gitready/scripts/finalize_github_repo.py my-package . --package-type plugin
 ```
 
 **Options**:
@@ -2254,7 +2276,7 @@ python ../github-ready/scripts/finalize_github_repo.py my-package . --package-ty
 **Usage**:
 ```bash
 # Scan during package creation
-/github-ready my-package --scan-quality
+/gitready my-package --scan-quality
 
 # Or as standalone check
 python scripts/scan_package_quality.py P:/packages/my-package
@@ -2366,7 +2388,7 @@ checklist=(
 - [ ] Ensure all tests pass
 - [ ] Review Recruiter Readiness Report
 
-💡 Run: /github-ready <package-path> --polish
+💡 Run: /gitready <package-path> --polish
 ```
 
 ## Changelog
@@ -2374,7 +2396,7 @@ checklist=(
 ### v5.6.0 (2026-03-14)
 - ✅ **PLUGIN STANDARDS VALIDATION**: Added PHASE 1.7 - automatic validation of plugin files/folders against Claude Code plugin standards
 - ✅ **CRUD RECOMMENDATIONS**: Auto-detects non-standard files and provides Create/Update/Delete recommendations
-- ✅ **MULTI-PLUGIN VALIDATION**: Standards validated against multiple production plugins (handoff, search-research, github-ready)
+- ✅ **MULTI-PLUGIN VALIDATION**: Standards validated against multiple production plugins (handoff, search-research, gitready)
 - ✅ **AUTO-CLEANUP**: One-command cleanup script for removing/moving non-standard files
 - ✅ **FORBIDDEN FILE DETECTION**: Identifies `pyproject.toml`, `src/`, `setup.py` violations in plugins
 - ✅ **TEMPORARY FILE DETECTION**: Finds test scripts, diagnostic artifacts, temporary documentation
