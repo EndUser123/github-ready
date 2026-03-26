@@ -1,6 +1,6 @@
 ---
 name: gitready
-version: 5.14.0
+version: 5.17.0
 description: This skill should be used when the user asks to "create a package", "scaffold a Python library", "make a GitHub-ready repo", "generate badges", "set up CI/CD", "convert to plugin", "brownfield conversion", "validate plugin standards", or mentions package scaffolding, portfolio polish, repository structure setup, badge generation, or plugin standards validation. Creates GitHub-ready Python libraries, Claude skills, and Claude Code plugins with badges, CI/CD workflows, coverage metrics, media artifacts, interactive course modules, and automatic plugin standards validation. Now includes PHASE 6: GitHub Publication and PHASE 7: Repository Finalization.
 category: scaffolding
 triggers:
@@ -24,7 +24,7 @@ workflow_steps:
 suggest:
   - /init
 ---
-# /gitready — Universal Package Creator & Portfolio Polisher v5.14.0
+# /gitready — Universal Package Creator & Portfolio Polisher v5.17.0
 
 ## Purpose
 
@@ -38,10 +38,10 @@ All packages are polished into resume-worthy GitHub artifacts with badges, CI/CD
 
 **v5.3 Update**: Integrated code-review plugin for automated quality validation before portfolio polish. Packages are now reviewed for security, performance, and maintainability issues before adding badges and CI/CD. More efficient workflow: fix quality issues before polishing.
 
-**v5.2 Update**: Aligned with official Claude Code plugin structure. Plugins now follow best practices from hookify, context7, and plugin-dev: minimal plugin.json, core/ directory for Python code, hooks/hooks.json, .mcp.json for MCP, and optional commands/agents/skills directories.
+**v5.2 Update**: Aligned with official Claude Code plugin structure. Plugins now follow best practices from hookify, context7, and plugin-dev: minimal plugin.json, scripts/ directory for Python code, hooks/hooks.json, .mcp.json for MCP, and optional commands/agents/skills directories.
 
 **What this does:**
-- **Scaffold**: Create canonical Claude Code Plugin structure (.claude-plugin/, core/, hooks/) by default
+- **Scaffold**: Create canonical Claude Code Plugin structure (.claude-plugin/, scripts/, hooks/) by default
 - **Convert**: Transform existing Python libraries to plugins (brownfield conversion)
 - **Polish**: Transform repos into GitHub-ready portfolio artifacts (badges, CI/CD, CHANGELOG, metrics)
 - **Detect**: Intelligent gap detection identifies what's missing
@@ -75,7 +75,7 @@ This skill includes utility scripts and reference documentation:
 
 ### Constitution/Constraints
 - Per CLAUDE.md: Solo-dev environment with pragmatic solutions
-- **DEFAULT**: Claude Code Plugins for packages with hooks/skills (`.claude-plugin/`, `core/`, `hooks/`)
+- **DEFAULT**: Claude Code Plugins for packages with hooks/skills (`.claude-plugin/`, `scripts/`, `hooks/`)
 - **MIGRATION**: Convert existing Python libraries to plugins via brownfield conversion
 - **ADVANCED**: Pure Python libraries (pyproject.toml, src layout) only for backend code without Claude Code integration
 - Windows-compatible links: **Junctions for skill directories** (no admin required, Git-compatible), **Symlinks for individual files** (requires admin or Developer Mode)
@@ -85,8 +85,8 @@ This skill includes utility scripts and reference documentation:
 - Truthfulness required: Only claim what actually exists, don't fabricate features
 
 ### Technical Context
-- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for packages with hooks/skills
-- **CONVERSION**: Brownfield Python library → Plugin conversion (src/ → core/)
+- **DEFAULT**: Claude Code Plugins (`.claude-plugin/`, `scripts/`, `hooks/`) for packages with hooks/skills
+- **CONVERSION**: Brownfield Python library → Plugin conversion (src/ → scripts/)
 - **ADVANCED**: Pure Python libraries (`src/`, `pyproject.toml`) for backend-only code (no hooks/skills)
 - Portfolio-quality README with badges, architecture flowchart, Quick Start
 - CI/CD workflows with status badges (Python libraries only)
@@ -223,7 +223,20 @@ To proceed, run:
 
 **Objective**: Clear interference sources before building.
 
+**Prerequisite (auto-runs before any phase that reads bundled resources)**:
+
+```bash
+python resources/phases/validate_pointers.py
+```
+**Purpose**: Validates all bundled-resource pointers resolve to existing, non-empty files. Failures indicate broken bundle links — do not proceed with any phase until this passes. See `resources/phases/validate_pointers.py`.
+
 **Steps:**
+
+0. **Validate bundle pointers** (prerequisite — runs automatically):
+```bash
+python resources/phases/validate_pointers.py
+```
+If this fails, stop here and fix the broken pointer(s) before continuing.
 
 1. **Check existing structure**:
 ```bash
@@ -286,14 +299,14 @@ elif [ -d "{{TARGET_DIR}}/src" ] || [ -f "{{TARGET_DIR}}/pyproject.toml" ]; then
         echo "Convert to Claude Code plugin?"
         echo "  • Removes pip install requirement"
         echo "  • Auto-registers hooks"
-        echo "  • Changes: src/ → core/, adds plugin.json/hooks.json"
+        echo "  • Changes: src/ → scripts/, adds plugin.json/hooks.json"
         echo ""
         read -p "Convert to plugin? (y/n): " CONVERT_TO_PLUGIN
         if [ "$CONVERT_TO_PLUGIN" = "y" ]; then
             PACKAGE_TYPE="brownfield-plugin"
             echo "✓ Proceeding with brownfield conversion..."
             echo ""
-            echo "Details: This will backup your current structure, migrate src/ to core/,"
+            echo "Details: This will backup your current structure, migrate src/ to scripts/,"
             echo "remove pyproject.toml, and add plugin configuration files."
             echo "Rollback available if needed."
         else
@@ -310,16 +323,18 @@ fi
 
 | Type | Trigger | Structure | Use Case | Recommendation |
 |------|---------|-----------|----------|----------------|
-| `claude-plugin` | `.claude-plugin/` directory exists | `.claude-plugin/` + `core/` + `hooks/` + README | **DEFAULT**: Packages with hooks/skills | ✅ **Primary pattern** |
-| `claude-plugin+mcp` | `.claude-plugin/` + `mcp_server.py` or `mcp/` | `.claude-plugin/` + `core/` + `hooks/` + `.mcp.json` | Plugins with MCP server | ✅ **For MCP integration** |
-| `brownfield-plugin` | Python library + user confirms | `src/` → `core/` conversion | Convert existing Python lib to plugin | ✅ **Migration path** |
+| `claude-plugin` | `.claude-plugin/` directory exists | `.claude-plugin/` + `scripts/` + `hooks/` + README | **DEFAULT**: Packages with hooks/skills | ✅ **Primary pattern** |
+| `claude-plugin+mcp` | `.claude-plugin/` + `mcp_server.py` or `mcp/` | `.claude-plugin/` + `scripts/` + `hooks/` + `.mcp.json` | Plugins with MCP server | ✅ **For MCP integration** |
+| `brownfield-plugin` | Python library + user confirms | `src/` → `scripts/` conversion | Convert existing Python lib to plugin | ✅ **Migration path** |
 | `python-library` | `src/` or `pyproject.toml` exists (no conversion) | `src/{{NAME}}/` + `tests/` + pyproject.toml | ⚠️ **ADVANCED**: Pure backend code (no hooks/skills) | ⚠️ **Only when plugins inappropriate** |
 | `claude-skill` | `SKILL.md` exists | `skill/` only (no `src/`, no pyproject.toml) | Standalone Claude skills | ℹ️ **For skill-only packages** |
 | `hook-package` | `hook/` directory exists | `hook/` + README | Legacy hook distribution | ℹ️ **Use plugin pattern instead** |
 
 ---
 
-## PHASE 1.6: Brownfield Conversion (2min) — ONLY IF `PACKAGE_TYPE=brownfield-plugin`⚠️ **CRITICAL**: Review `references/brownfield-conversion.md` FIRST before proceeding.
+## PHASE 1.6: Brownfield Conversion (2min) — ONLY IF `PACKAGE_TYPE=brownfield-plugin`
+
+⚠️ **CRITICAL**: Review `references/brownfield-conversion.md` FIRST before proceeding.
 
 **Pre-Conversion Checklist** (5 items):
 - [ ] Fix hardcoded paths (no `P:/`, `/Users/`, `C:/` in source code)
@@ -328,9 +343,9 @@ fi
 - [ ] Verify dependencies (use existing libraries, avoid reinventing)
 - [ ] Expand test coverage (unit + error paths + integration)
 
-**Summary**: Converts existing Python library (`src/` → `core/`) to Claude Code plugin structure with backup, verification, and rollback support. See `references/brownfield-conversion.md` for detailed 7-step workflow.
+**Summary**: Converts existing Python library (`src/` → `scripts/`) to Claude Code plugin structure with backup, verification, and rollback support. See `references/brownfield-conversion.md` for detailed 7-step workflow.
 
-**Rollback**: Backup created at `.backup/` before conversion. To rollback: `cp -r .backup/* . && rm -rf core/ .claude-plugin/`
+**Rollback**: Backup created at `.backup/` before conversion. To rollback: `cp -r .backup/* . && rm -rf scripts/ .claude-plugin/`
 
 ### Post-Conversion Verification (CRITICAL)
 
@@ -341,189 +356,17 @@ After brownfield conversion, check for broken symlinks that may still point to o
 cd P:/.claude/hooks
 ls -la | grep "src/"
 
-# If found, remove and recreate them with correct core/ paths:
+# If found, remove and recreate them with correct scripts/ paths:
 rm PreCompact_handoff_capture.py SessionStart_handoff_restore.py
-cmd /c "mklink PreCompact_handoff_capture.py p:\packages\handoff\core\hooks\PreCompact_handoff_capture.py"
-cmd /c "mklink SessionStart_handoff_restore.py p:\packages\handoff\core\hooks\SessionStart_handoff_restore.py"
+cmd /c "mklink PreCompact_handoff_capture.py p:\packages\handoff\scripts\hooks\PreCompact_handoff_capture.py"
+cmd /c "mklink SessionStart_handoff_restore.py p:\packages\handoff\scripts\hooks\SessionStart_handoff_restore.py"
 ```
 
-**Common pitfall**: Symlinks in `P:/.claude/hooks/` may still point to old `src/handoff/hooks/` path after conversion. Must point to `core/hooks/`.
+**Common pitfall**: Symlinks in `P:/.claude/hooks/` may still point to old `src/handoff/hooks/` path after conversion. Must point to `scripts/hooks/`.
 
 ## PHASE 1.7: Plugin Standards Validation (Auto-invoked)
 
-**Objective**: Validate existing files/folders against OFFICIAL Claude Code plugin standards and provide CRUD recommendations.
-
-**When**: Automatically runs after PHASE 1.5 (Detect Package Type) completes, for ALL plugin package types.
-
-**What this does**:
-- Scans root directory for files/folders
-- Compares against OFFICIAL plugin-dev:plugin-structure standards
-- Identifies non-standard files that violate plugin conventions
-- Provides CRUD recommendations (Create, Update, Delete)
-- Offers auto-cleanup with confirmation
-- **NO ARGUMENTS REQUIRED** - runs automatically
-
-**Standards Source**: OFFICIAL Claude Code plugin documentation from:
-- **plugin-dev:plugin-structure** (authoritative source)
-- **plugin-dev:plugin-settings** (configuration reference)
-- **plugin-dev:create-plugin** (creation workflow)
-
-### OFFICIAL Claude Code Plugin Structure
-
-**Required Directories**:
-- **`.claude-plugin/`** - Plugin metadata (contains ONLY `plugin.json`)
-- **Component dirs at ROOT** - `commands/`, `agents/`, `skills/`, `hooks/` (NOT nested in `.claude-plugin/`)
-
-**Optional Directories** (created as needed):
-- **`commands/`** - Slash commands (.md files)
-- **`agents/`** - Subagent definitions (.md files)
-- **`skills/`** - Agent skills (subdirectories with `SKILL.md`)
-- **`hooks/`** - Hook configuration (`hooks.json`)
-- **`scripts/`** - Helper scripts and utilities (Python code goes here)
-- **`.github/`** - GitHub workflows
-
-**⚠️ CRITICAL CORRECTION FROM v5.6.0**:
-- ❌ **WRONG**: `core/` directory is NOT in official spec
-- ✅ **CORRECT**: Python code in `scripts/` or component directories
-- ✅ **CORRECT**: Components at ROOT level (not nested in `.claude-plugin/`)
-
-**Required Files** (root):
-- **`README.md`** - Portfolio documentation
-- **`LICENSE`** - License file
-
-**Optional Files** (root):
-- **`CHANGELOG.md`**** - Version history
-- **`AGENTS.md`**** - AI-maintainable documentation
-- **`CONTRIBUTING.md`**** - Contribution guidelines
-- **`.gitignore`**** - Version control exclusions
-
-**FORBIDDEN Files** (violate plugin standards):
-- **`pyproject.toml`** - Plugins don't use pip packaging
-- **`setup.py`** - Plugins don't use pip packaging
-- **`setup.cfg`** - Plugins don't use pip packaging
-- **`core/`** directory - NOT in official plugin structure
-- **`src/`** directory - Use appropriate component directories instead
-
-### Detection Logic
-
-```bash
-# Scan root directory
-cd {{TARGET_DIR}}
-ROOT_ITEMS=$(find . -maxdepth 1 -type d ! -name ".*" ! -name "." | sort)
-ROOT_FILES=$(find . -maxdepth 1 -type f ! -name ".*" | sort)
-
-# Check for forbidden files
-FORBIDDEN=""
-if [ -f "pyproject.toml" ]; then
-    FORBIDDEN="$FORBIDDEN\n❌ DELETE: pyproject.toml (plugins don't need pip packaging)"
-fi
-if [ -d "src" ]; then
-    FORBIDDEN="$FORBIDDEN\n❌ DELETE/MIGRATE: src/ (use core/ for plugins)"
-fi
-
-# Check for non-standard files (artifact patterns)
-TEMP_FILES=$(find . -maxdepth 1 -name "*SUMMARY*.md" -o -name "*REPORT*.md" -o -name "*CHECKLIST*.md" -o -name "*AUDIT*.md" -o -name "*TREE*.txt" -o -name "README_*.md" 2>/dev/null)
-if [ -n "$TEMP_FILES" ]; then
-    FORBIDDEN="$FORBIDDEN\n⚠️  MOVE TO docs/: Temporary documentation artifacts"
-fi
-
-# Check for test scripts in root
-TEST_SCRIPTS=$(find . -maxdepth 1 -name "test_*.py" -o -name "verify_*.py" -o -name "analyze_*.py" -o -name "diagnose_*.py" 2>/dev/null)
-if [ -n "$TEST_SCRIPTS" ]; then
-    FORBIDDEN="$FORBIDDEN\n⚠️  MOVE TO tests/: Standalone test scripts"
-fi
-
-echo "$FORBIDDEN"
-```
-
-### CRUD Recommendations
-
-**DELETE** (violates plugin standards):
-- `pyproject.toml`, `setup.py`, `setup.cfg` - Plugins don't use pip
-- `src/` directory - Wrong structure, use `core/`
-- `*.backup`, `*.old`, `*.bak` - Backup files
-- `test_*.py`, `verify_*.py`, `analyze_*.py` - Temporary test scripts
-- `*SUMMARY*.md`, `*REPORT*.md`, `*CHECKLIST*.md` - Temporary documentation
-- `*TREE*.txt`, `README_NEW.md` - Diagnostic artifacts
-- `.coverage`, `coverage.json` - Generated coverage files
-
-**MOVE TO `docs/`** (historical context, not root clutter):
-- `*_STRUCTURE.md`, `*_AUDIT*.md`, `*_VALIDATION*.md`
-- `*_BREAKDOWN*.md`, `*_FIX*.md`, `*_DATA*.md`
-- `*_IMPLEMENTATION*.md`, `*_PHASE*.md`
-
-**MOVE TO `tests/`** (test suite organization):
-- `test_*.py` (if useful tests)
-- `verify_*.py` (if verification scripts)
-- Review bundles, test fixtures
-
-**KEEP IN ROOT** (standard plugin files):
-- `README.md`, `LICENSE`, `CHANGELOG.md`
-- `AGENTS.md`, `CONTRIBUTING.md`, `.gitignore`
-
-### Auto-Cleanup Script
-
-```bash
-#!/bin/bash
-# Auto-cleanup non-standard plugin files
-
-# Create docs/ if needed
-mkdir -p docs tests/fixtures
-
-# Delete forbidden files
-rm -f pyproject.toml setup.py setup.cfg
-rm -f *.backup *.old *.bak
-rm -f *SUMMARY*.md *REPORT*.md *CHECKLIST*.md *AUDIT*.md
-rm -f *TREE*.txt README_NEW.md
-rm -f test_*.py verify_*.py analyze_*.py diagnose_*.py
-rm -f .coverage coverage.json
-
-# Move documentation to docs/
-mv *_STRUCTURE.md docs/ 2>/dev/null || true
-mv *_AUDIT*.md docs/ 2>/dev/null || true
-mv *_VALIDATION*.md docs/ 2>/dev/null || true
-mv *_DATA*.md docs/ 2>/dev/null || true
-mv *_IMPLEMENTATION*.md docs/ 2>/dev/null || true
-mv *_PHASE*.md docs/ 2>/dev/null || true
-mv review_bundle_*.md tests/fixtures/ 2>/dev/null || true
-
-echo "✓ Cleanup complete"
-echo "  Deleted: $(grep -c "DELETE" <<<$FORBIDDEN) forbidden files"
-echo "  Moved: $(grep -c "MOVE" <<<$FORBIDDEN) files to appropriate directories"
-```
-
-### Output Format
-
-**PLUGIN_STANDARDS_REPORT.md**:
-```markdown
-# Plugin Standards Validation Report
-
-## Package Type: claude-plugin
-## Compliance Score: 85/100
-
-### ✅ Standards Compliant
-- .claude-plugin/ exists
-- core/ directory present
-- hooks/ configuration present
-- README.md with badges
-
-### ❌ Standards Violations (5 items)
-- **DELETE**: pyproject.toml (plugins don't need pip packaging)
-- **MOVE TO docs/**: HANDOFF_QUALITY_CHECKLIST.md (7 files)
-- **MOVE TO tests/**: test_handoff_save_direct.py (2 files)
-- **DELETE**: pre-pack-tree.txt (diagnostic artifact)
-
-### 🚀 Auto-Cleanup Available
-Run this command to auto-fix all violations:
-```bash
-cd P:/packages/handoff && bash cleanup_plugin_standards.sh
-```
-
-### 📋 Manual Cleanup Required
-None - all violations can be auto-fixed.
-```
-
-**Integration**: Runs automatically after package type detection, before structure building. Can be invoked standalone with `/gitready --check-standards`.
+> READ: resources/phases/PHASE-1.7-plugin-standards.md
 
 ---
 
@@ -532,7 +375,7 @@ None - all violations can be auto-fixed.
 **Objective**: Create appropriate directory structure based on package type.
 
 **⚠️ ARCHITECTURE GUIDANCE**:
-- **DEFAULT**: Create Claude Code Plugins (`.claude-plugin/`, `core/`, `hooks/`) for packages with hooks/skills
+- **DEFAULT**: Create Claude Code Plugins (`.claude-plugin/`, `scripts/`, `hooks/`) for packages with hooks/skills
 - **MIGRATION**: Convert existing Python libraries to plugins via brownfield conversion
 - **ADVANCED**: Create pure Python libraries only when plugin architecture isn't appropriate (e.g., pure backend code with no Claude Code integration)
 
@@ -584,7 +427,7 @@ mkdir -p {{TARGET_DIR}}/skill
 │       └── SKILL.md
 ├── hooks/
 │   └── hooks.json             # Hook configuration
-├── core/                      # Python code
+├── scripts/                      # Python code
 │   ├── __init__.py
 │   ├── main.py
 │   └── utils/
@@ -601,7 +444,7 @@ mkdir -p {{TARGET_DIR}}/skill
 **IMPORTANT**: Claude Code plugins use auto-discovered components:
 - `.claude-plugin/plugin.json` - Minimal manifest (name, description, author)
 - Components at ROOT level - commands/, agents/, skills/, hooks/
-- `core/` directory - Python code (NOT packages/hook/)
+- `scripts/` directory - Python code (NOT packages/hook/)
 {% if HAS_MCP_SERVER %}
 - `.mcp.json` - MCP server configuration (NOT mcp/ directory)
 {% endif %}
@@ -644,7 +487,7 @@ mkdir -p {{TARGET_DIR}}/tests
     "matcher": ".*",
     "hooks": [{
       "type": "command",
-      "command": "python CLAUDE_PLUGIN_ROOT/core/main.py"
+      "command": "python CLAUDE_PLUGIN_ROOT/scripts/main.py"
     }]
   }]
 }
@@ -656,12 +499,12 @@ mkdir -p {{TARGET_DIR}}/tests
 {
   "{{package_name}}": {
     "command": "python",
-    "args": ["-m", "core.mcp.server"]
+    "args": ["-m", "scripts.mcp.server"]
   }
 }
 ```
 {% endif %}
-4. **Create `core/__init__.py`**: (Python initialization)
+4. **Create `scripts/__init__.py`**: (Python initialization)
 5. **Create `.gitignore`**: (Exclude .local.md files)
 6. **Generate README.md** (see PHASE 3 templates)
 7. **Create LICENSE** (MIT)
@@ -694,7 +537,7 @@ ln -s /path/to/packages/{{package_name}}/skill ~/.claude/skills/{{package_name}}
 
 ## **2. HOOKS (Dev Deployment)**
 
-**For:** Packages with hook files (`.py` files in `core/hooks/`)
+**For:** Packages with hook files (`.py` files in `scripts/hooks/`)
 
 **Setup:**
 ```powershell
@@ -702,7 +545,7 @@ ln -s /path/to/packages/{{package_name}}/skill ~/.claude/skills/{{package_name}}
 cd P:/.claude/hooks
 
 # Symlink individual hook files from your package
-ln -sf P:/packages/{{package_name}}/core/hooks/HookName.py HookName.py
+ln -sf P:/packages/{{package_name}}/scripts/hooks/HookName.py HookName.py
 ```
 
 **Key points:**
@@ -785,11 +628,11 @@ ln -s /path/to/packages/my-plugin/skills/skill-c ~/.claude/skills/skill-c
 
 #### Multiple Hook Files (One Symlink Per File)
 
-If your plugin has multiple hook files in `core/hooks/`:
+If your plugin has multiple hook files in `scripts/hooks/`:
 
 ```
 my-plugin/
-└── core/
+└── scripts/
     └── hooks/
         ├── hook1.py  → Symlink 1
         ├── hook2.py  → Symlink 2
@@ -802,17 +645,17 @@ Create **one symlink for each hook file**:
 # Symlinks go in P:/.claude/hooks/ (NOT ~/.claude/plugins/)
 cd P:/.claude/hooks
 
-cmd /c "mklink hook1.py P:\packages\my-plugin\core\hooks\hook1.py"
-cmd /c "mklink hook2.py P:\packages\my-plugin\core\hooks\hook2.py"
-cmd /c "mklink hook3.py P:\packages\my-plugin\core\hooks\hook3.py"
+cmd /c "mklink hook1.py P:\packages\my-plugin\scripts\hooks\hook1.py"
+cmd /c "mklink hook2.py P:\packages\my-plugin\scripts\hooks\hook2.py"
+cmd /c "mklink hook3.py P:\packages\my-plugin\scripts\hooks\hook3.py"
 ```
 
 **macOS/Linux equivalent:**
 ```bash
 cd ~/.claude/hooks
-ln -sf /path/to/packages/my-plugin/core/hooks/hook1.py hook1.py
-ln -sf /path/to/packages/my-plugin/core/hooks/hook2.py hook2.py
-ln -sf /path/to/packages/my-plugin/core/hooks/hook3.py hook3.py
+ln -sf /path/to/packages/my-plugin/scripts/hooks/hook1.py hook1.py
+ln -sf /path/to/packages/my-plugin/scripts/hooks/hook2.py hook2.py
+ln -sf /path/to/packages/my-plugin/scripts/hooks/hook3.py hook3.py
 ```
 
 #### Both Skills AND Hooks
@@ -824,7 +667,7 @@ my-plugin/
 ├── skills/
 │   ├── skill-a/SKILL.md  → Junction to skills/skill-a/
 │   └── skill-b/SKILL.md  → Junction to skills/skill-b/
-└── core/
+└── scripts/
     └── hooks/
         ├── hook1.py  → Symlink in P:/.claude/hooks/
         └── hook2.py  → Symlink in P:/.claude/hooks/
@@ -886,380 +729,7 @@ touch {{TARGET_DIR}}/tests/__init__.py
 
 ## PHASE 3: Generate Templates
 
-**Objective**: Generate README.md, LICENSE, AGENTS.md, and configuration files based on package type.
-
-**Templates auto-generated**:
-- **Python libraries**: pip install instructions, Quick Start, development setup
-- **Claude skills**: Manual installation via junctions/symlinks, no pyproject.toml
-- **Claude Code plugins**: `/plugin` installation, local dev with junctions/symlinks
-- **Brownfield plugins**: Migration notice, rollback instructions, updated usage examples
-
-**All packages get AGENTS.md**:
-- AI-maintainable documentation for Claude, Copilot, and other AI assistants
-- Uses template from `resources/AGENTS.template.md`
-- Documents plugin constraints, setup commands, and development workflows
-- Critical for long-term maintainability by AI assistants
-
-### README Structure Contract
-
-**CRITICAL**: Keep the main `README.md` as the source of truth for package documentation. Use GitHub Pages only for browser playback of the explainer video unless the user explicitly asks for a separate docs site.
-
-**Required top-level README order:**
-1. Project title, badges, and one-paragraph overview
-2. `Quick Start`
-3. `See The Transformation` (before/after comparison table)
-4. `Explainer Video`
-5. `What {{package_name}} Does` (capabilities + pipeline overview)
-6. `What Gets Created` (artifact tree — the outcome)
-7. `Which Package Type Do You Need?` (decision helper, placed near artifacts)
-8. `Development and Deployment`
-9. `Additional Media Assets`
-10. `Contributing`, `Changelog`, `License`, `Resources`
-11. PHASE deep-dives (`PHASE 4.5`, `PHASE 6`, `PHASE 7`) — reference material at the end
-
-**Rules:**
-- Put the explainer video immediately after `Quick Start`
-- Keep `What Gets Created` before `Which Package Type` so users see the outcome first, then learn which type they need
-- Move PHASE sections to the end — they are reference material, not part of the primary user journey
-- Keep architecture, workflow, and usage details on the main GitHub page
-- Generate `docs/video.html` for GitHub Pages by default
-- Do not generate extra Pages docs such as `docs/*architecture*.html` or `docs/*workflow*.html` unless the user explicitly asks for them
-- Link the README poster image to the GitHub Pages player page and keep all other technical content in the repository README
-- **Also generate `docs/README-preview.html`** — a styled HTML version of the README for local preview with GitHub-like CSS (light/dark theme support)
-
-### README Template for Claude Code Plugins
-
-**CRITICAL**: Include the "Three Deployment Models" section in every generated README.md to prevent confusion about installation methods.
-
-```markdown
-## Installation
-
-### Three Deployment Models
-
-**IMPORTANT**: This package supports three different deployment modes. Choose the right one for your use case.
-
-#### 1. SKILLS (Dev Deployment) ⭐ **Recommended for Development**
-
-**For**: When you're actively developing this package and want instant feedback.
-
-**Setup:**
-\`\`\`powershell
-# Windows (Junction - No admin required)
-# For plugins with skills: Junction to the skills/ subdirectory
-New-Item -ItemType Junction -Path "P:\.claude\skills\{{package_name}}" -Target "P:\packages\{{package_name}}\skills\{{package_name}}"
-
-# For standalone skills (skill/ directory): Junction to the skill/ subdirectory
-# New-Item -ItemType Junction -Path "P:\.claude\skills\{{package_name}}" -Target "P:\packages\{{package_name}}\skill"
-
-# macOS/Linux (Symlink)
-ln -s /path/to/packages/{{package_name}}/skills/{{package_name}} ~/.claude/skills/{{package_name}}
-\`\`\`
-
-**Key points:**
-- ✅ Edit in \`P:/packages/{{package_name}}\`, changes work immediately
-- ✅ No reinstallation required - skills auto-discover from \`P:/.claude/skills/\`
-- ✅ Perfect for active development
-- ✅ Junction to `skills/{{package_name}}/` for plugin skills, or `skill/` for standalone skills
-- ⚠️  **CRITICAL**: The junction target must point to WHERE THE SKILL.md FILE ACTUALLY LIVES:
-  - Plugin skills: `package-name/skills/skill-name/SKILL.md` → junction target: `skills/skill-name/`
-  - Standalone skills: `package-name/skill/SKILL.md` → junction target: `skill/`
-
-**Important Note on Skill Naming:**
-- The junction NAME (`{{package_name}}`) should match the skill directory name in the package
-- This ensures the skill URL (`/skill-name`) works correctly
-- Example: If package has `skills/my-skill/SKILL.md`, create junction as `P:/.claude/skills/my-skill/`
-- The skill's **aliases** in the frontmatter determine what users type to invoke it
-
-#### 2. HOOKS (Dev Deployment - Hook Files Only)
-
-**For**: When this package has hook files (\`.py\` files in \`core/hooks/\`) you want to test.
-
-**Setup:**
-\`\`\`powershell
-# Symlink individual hook files to P:/.claude/hooks/
-cd P:/.claude/hooks
-
-# Example: Symlink a specific hook file
-cmd /c "mklink HookName.py P:/packages/{{package_name}}/core/hooks/HookName.py"
-\`\`\`
-
-**Key points:**
-- ✅ Symlink individual \`.py\` hook files only (NOT the entire directory)
-- ✅ Symlinks go in \`P:/.claude/hooks/\` (NOT \`~/.claude/plugins/\`)
-- ✅ These are dev-only symlinks for working directly on source code
-- ⚠️  After brownfield conversion, check for broken symlinks pointing to old \`src/\` paths
-
-#### 3. PLUGINS (End User Deployment)
-
-**For**: Distributing this package to other users via marketplace or GitHub.
-
-**Setup:**
-\`\`\`bash
-# End users install via /plugin command
-/plugin P:/packages/{{package_name}}
-
-# Or from marketplace (when published)
-/plugin install {{package_name}}
-\`\`\`
-
-**Key points:**
-- ✅ Plugin copied to \`~/.claude/plugins/cache/\`
-- ✅ Registered in \`~/.claude/plugins/installed_plugins.json\`
-- ❌ **NOT for local development** - requires reinstall on every change
-- ✅ Use for distributing finished packages to users
-
-### Which Model Should You Use?
-
-| Your Situation | Use This Model | Why |
-|----------------|----------------|-----|
-| Actively developing this package | **SKILLS** (junction) | Instant feedback, no reinstall |
-| Testing hook file changes | **HOOKS** (symlinks) | Direct hook testing |
-| Distributing to end users | **PLUGINS** (/plugin) | Proper distribution format |
-
-### Common Mistakes to Avoid
-
-- ❌ Don't use \`/plugin\` command for local development (requires reinstall on every change)
-- ❌ Don't symlink entire directories to \`P:/.claude/hooks/\` (only symlink \`.py\` files)
-- ❌ Don't confuse skills (\`P:/.claude/skills/\`) with plugins (\`~/.claude/plugins/\`)
-- ❌ Don't forget to update symlinks after brownfield conversion - check for \`src/\` paths
-\`\`\`
-
-### Media Assets Section Template
-
-**After media generation completes (PHASE 4.7), add this section to README.md after `Development and Deployment`:**
-
-\`\`\`markdown
-## Explainer Video
-
-[![Watch the demo with audio](assets/videos/{{package_name}}_video_poster.png)](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)
-
-> **[🎬 Watch the explainer in the browser](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)**
-> **[⬇️ Download the MP4 directly](https://github.com/{{github_username}}/{{package_name}}/releases/download/media/{{package_name}}_explainer_pbs.mp4)**
-> *Browser playback requires GitHub Pages to be enabled for this repository.*
-
-Quick overview of features and workflow.
-
-## Additional Media Assets
-
-### 📊 Architecture Flowchart
-
-```mermaid
-graph TB
-    Input[User: /{{package_name}}] --> Detect[Detect Package Type]
-    Detect --> Type{Package Type?}
-    Type -->|Plugin| Plugin[Plugin Structure]
-    Type -->|Skill| Skill[Skill Structure]
-    Type -->|Library| Library[Library Structure]
-    Plugin --> Polish[Portfolio Polish]
-    Skill --> Polish
-    Library --> Polish
-    Polish --> Docs[Documentation]
-    Polish --> Media[Media Assets]
-    Polish --> CI[CI/CD]
-    Docs --> Output[GitHub-Ready Package]
-    Media --> Output
-    CI --> Output
-```
-
-### 📑 Presentation Slides
-
-[![Slide deck preview](assets/slides/{{package_name}}_slides_preview.png)](assets/slides/{{package_name}}_slides.pdf)
-
-**[📄 View Slides (PDF)](assets/slides/{{package_name}}_slides.pdf)**
-**[⬇️ Download PDF](assets/slides/{{package_name}}_slides.pdf)**
-
-*Use the PDF for both viewing and download on GitHub.*
-
-### Interactive Course
-
-[**Learn how {{package_name}} works →**](https://{{github_username}}.github.io/{{package_name}}/docs/{{package_name}}_course.html)
-
-*An interactive walkthrough of the architecture, components, and how everything fits together.*
-
----
-
-**💡 Tip**: Use GitHub Pages for in-browser video playback. Keep the slide deck in PDF form for the cleanest GitHub viewing experience.
-\`\`\`
-
-**IMPORTANT**: This media layout uses GitHub-compatible markdown. Key points:
-- **Images**: Use standard markdown \`![alt](path)\` syntax - renders inline
-- **Videos**: Do not rely on HTML \`<video>\` tags in \`README.md\`
-- **Recommended pattern**: Link a verified still frame such as \`assets/videos/{{package_name}}_video_poster.png\` in \`README.md\` to \`https://{{github_username}}.github.io/{{package_name}}/docs/video.html\`
-- **Fallback**: Keep the release asset MP4 link for direct download/open
-- **PDFs**: Use direct markdown links - opens in GitHub's built-in PDF viewer
-- **Slide previews**: Export the first PDF page to \`assets/slides/{{package_name}}_slides_preview.png\` and link it to the PDF
-- **Badges**: Use shields.io badges for visual appeal and clickability
-- **GitHub Pages**: Enable Pages from \`main\` root so \`docs/video.html\` is publicly available
-- **Pages scope**: Use GitHub Pages only for the video player by default; keep architecture and workflow documentation in \`README.md\`
-- **Durations**: Never hardcode video runtimes. Measure the exported file first or omit the duration label entirely
-
-**Runtime verification examples:**
-```bash
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 assets/videos/{{package_name}}_explainer_pbs.mp4
-```
-
-**For brownfield conversions**: See \`references/brownfield-conversion.md\` for README update instructions (migration notice, rollback instructions, updated usage examples).
-
-### HTML Preview Generation
-
-**After generating README.md, also create an HTML preview file for local viewing:**
-
-```bash
-# Create docs directory if it doesn't exist
-mkdir -p docs
-
-# Generate HTML preview with GitHub-style CSS and day-night toggle
-cat > docs/README-preview.html << 'HTMLEOF'
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{package_name}} - README Preview</title>
-    <style>
-        /* === LIGHT THEME === */
-        :root, [data-theme="light"] {
-            --bg-color: #ffffff;
-            --bg-code: #f6f8fa;
-            --text-color: #24292e;
-            --text-muted: #586069;
-            --link-color: #0366d6;
-            --border-color: #e1e4e8;
-            --heading-color: #111;
-            --inline-code-bg: #eff1f3;
-            --blockquote-border: #dfe2e5;
-            --blockquote-bg: #f6f8fa;
-            --toggle-bg: #e1e4e8;
-            --toggle-fg: #586069;
-            --header-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        /* === DARK THEME === */
-        [data-theme="dark"] {
-            --bg-color: #0d1117;
-            --bg-code: #161b22;
-            --text-color: #c9d1d9;
-            --text-muted: #8b949e;
-            --link-color: #58a6ff;
-            --border-color: #30363d;
-            --heading-color: #f0f6fc;
-            --inline-code-bg: #2d333b;
-            --blockquote-border: #3b434b;
-            --blockquote-bg: #161b22;
-            --toggle-bg: #30363d;
-            --toggle-fg: #c9d1d9;
-            --header-gradient: linear-gradient(135deg, #4a3f78 0%, #5a4a6a 100%);
-        }
-        /* === BASE STYLES === */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px 40px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: background 0.2s ease, color 0.2s ease;
-        }
-        /* === THEME TOGGLE === */
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1px solid var(--border-color);
-            background: var(--toggle-bg);
-            color: var(--toggle-fg);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: all 0.2s ease;
-            z-index: 1000;
-        }
-        .theme-toggle:hover {
-            border-color: var(--link-color);
-            color: var(--link-color);
-        }
-        .theme-toggle:focus {
-            outline: 2px solid var(--link-color);
-            outline-offset: 2px;
-        }
-        /* === TYPOGRAPHY === */
-        a { color: var(--link-color); }
-        h1, h2, h3, h4, h5, h6 { color: var(--heading-color); margin-top: 24px; margin-bottom: 16px; font-weight: 600; }
-        h1 { font-size: 2em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
-        h2 { font-size: 1.5em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
-        h3 { font-size: 1.25em; }
-        p { margin-bottom: 16px; }
-        /* === CODE === */
-        code { background: var(--inline-code-bg); padding: 0.2em 0.4em; border-radius: 3px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; }
-        pre { background: var(--bg-code); padding: 16px; border-radius: 6px; overflow-x: auto; }
-        pre code { background: transparent; padding: 0; }
-        /* === QUOTES & TABLES === */
-        blockquote { border-left: 4px solid var(--blockquote-border); padding: 0 16px; margin: 0; color: var(--text-muted); background: var(--blockquote-bg); }
-        table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-        th, td { border: 1px solid var(--border-color); padding: 8px 13px; }
-        th { background: var(--bg-code); }
-        /* === MEDIA & MISC === */
-        img { max-width: 100%; }
-        hr { border: none; border-top: 1px solid var(--border-color); margin: 24px 0; }
-        details { margin: 16px 0; }
-        summary { cursor: pointer; font-weight: 500; }
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; vertical-align: middle; }
-        /* === HEADER SECTION === */
-        .header-section { background: var(--header-gradient); color: white; padding: 2em; border-radius: 8px; margin-bottom: 2em; transition: background 0.2s ease; }
-        .header-section h1 { color: white; border: none; }
-        .header-section p { color: rgba(255,255,255,0.9); }
-        /* === CODE HILITE (for pre-existing content) === */
-        .codehilite { background: var(--bg-code); padding: 16px; border-radius: 6px; overflow-x: auto; }
-    </style>
-</head>
-<body>
-<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode" title="Toggle theme">
-    <span id="theme-icon">&#9788;</span>
-</button>
-<script>
-    function toggleTheme() {
-        const html = document.documentElement;
-        const icon = document.getElementById('theme-icon');
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
-        icon.innerHTML = next === 'dark' ? '&#9790;' : '&#9788;';
-        localStorage.setItem('theme', next);
-    }
-    // Init from localStorage or system preference
-    (function() {
-        const saved = localStorage.getItem('theme');
-        if (saved) {
-            document.documentElement.setAttribute('data-theme', saved);
-            document.getElementById('theme-icon').innerHTML = saved === 'dark' ? '&#9790;' : '&#9788;';
-        }
-    })();
-</script>
-<!-- README CONTENT WILL BE INSERTED HERE BY THE SKILL -->
-</body>
-</html>
-HTMLEOF
-```
-
-**HTML preview features:**
-- **Day-night toggle** — clickable sun/moon button (top-right), persists preference in localStorage
-- GitHub-inspired light/dark theme with CSS variables
-- All elements (code, tables, blockquotes, badges, header) respond to theme change
-- Responsive layout (max-width 900px)
-- Syntax highlighting for code blocks
-- Proper styling for tables, blockquotes, badges
-- Collapsible `<details>` sections render correctly
-
-**Output file:** `docs/README-preview.html`
-
-**Update after PHASE 4.8:** The course is now a separate HTML file (`docs/{package}_course.html`) linked from README. The README-preview.html focuses on rendering the README content itself.
-
-**Note:** The HTML preview is for local development viewing. The canonical documentation remains `README.md` which GitHub renders automatically.
+> READ: resources/phases/PHASE-3-templates.md
 
 ## PHASE 4: Validate (1min)
 
@@ -1405,876 +875,13 @@ meta_review_summary = {
 
 ## PHASE 4.7: Media Generation (Auto-invoked) — NEW
 
-**Objective**: Generate professional portfolio assets (banners, diagrams, videos) for GitHub showcase.
-
-**When**: Automatically runs after PHASE 4.5 (Code Review) completes, before PHASE 5 (Portfolio Polish).
-
-**What this does:**
-- Generates visual assets for portfolio-quality packages
-- Creates banner images for GitHub social preview
-- Builds static overview images plus GitHub-safe Mermaid flowcharts
-- Produces one concise technical explainer video focused on architecture, workflow, and outputs
-- Creates a dedicated HTML video player page for GitHub Pages playback
-- Verifies asset quality with vision API before acceptance
-
-**Generated Assets:**
-
-| Asset | Purpose | Tools (recommended first) | Time | Output Formats |
-|-------|---------|---------------------------|------|---------------|
-| **Banner** | GitHub social preview (1200×630) | OpenRouter (DALL-E 3), Midjourney, Stable Diffusion, PIL (manual) | ~30s | `assets/banners/{package}_banner.png` |
-| **Architecture overview image** | Visual system overview | NotebookLM, DALL-E 3, Mermaid → PNG, PlantUML, Graphviz | ~2min | `assets/infographics/{package}_architecture.png` |
-| **System overview flowchart** | GitHub-safe architecture view | Mermaid, PlantUML, Graphviz DOT, draw.io | ~1min | `docs/diagrams/system_overview.mmd` |
-| **Workflow flowchart** | Phase-by-phase pipeline view | Mermaid, PlantUML, Graphviz DOT | ~1min | `docs/diagrams/workflow.mmd` |
-| **Explainer video** | AI-narrated technical walkthrough | NotebookLM, Luma Dream Machine, Runway Gen-3, HeyGen | ~1-3min target | `assets/videos/{package}_explainer_pbs.mp4` |
-| **Slide deck** | Interactive presentation | NotebookLM, Marp, Pandoc, PowerPoint | ~2min | `assets/slides/{package}_slides.pdf` |
-| **Video player page** | Browser playback via GitHub Pages | Static HTML, GitHub default (no player) | ~30s | `docs/video.html` |
-
-**Tool selection notes:**
-- **NotebookLM**: Best for comprehensive assets (infographics + videos + slides) from source code analysis
-- **OpenRouter/DALL-E 3**: Best for branded banner generation with text rendering
-- **Mermaid**: Best for code-as-diagram flowcharts that render directly in GitHub
-- **PIL (Python Imaging Library)**: Manual fallback for simple gradient/text banners
-- **Marp**: Markdown-based slide deck alternative with GitHub rendering
-- **PlantUML**: Alternative to Mermaid for UML-specific diagrams
-
-**Auto-skip conditions:**
-- No README images detected (`.gif`, `.png` in README)
-- User explicitly opts out with `--skip media`
-
-**Provider requirements:**
-- **NotebookLM**: `uv tool install notebooklm-mcp-cli` (v0.4.4+) + `nlm login`
-- **visual-explainer:generate-web-diagram**: Installed via `/universal-skills-manager` or ClawHub
-- **OpenRouter**: `OPENROUTER_API_KEY` environment variable (for banner generation, optional)
-- **NotebookLM**: `uv tool install notebooklm-mcp-cli` (v0.4.4+) + `nlm login`
-- **OpenRouter**: `OPENROUTER_API_KEY` environment variable (for banner generation)
-
-**If providers missing:**
-- Check provider status and display clear setup instructions
-- Skip assets that require unavailable providers
-- Continue with available assets only
-
-**Execution flow:**
-```
-Provider detection → Review bundle generation → Video brief generation → Multi-source upload (brief + review bundle + source files) → Asset generation (NotebookLM + video page) → Quality verification → Notebook cleanup
-```
-
-**Asset generation via nlm CLI (v0.4.4+):**
-
-```bash
-# After uploading sources to notebook, generate artifacts:
-NOTEBOOK_ID="<your-notebook-id>"
-
-# Create architecture diagram (infographic)
-nlm infographic create "$NOTEBOOK_ID" --orientation landscape --detail standard --style professional --confirm
-
-# Create explainer video
-# Prefer a concise technical walkthrough, not a broad marketing script.
-nlm video create "$NOTEBOOK_ID" --format explainer --style documentary --confirm
-
-# Create slide deck
-nlm slides create "$NOTEBOOK_ID" --slide-format detailed_deck --confirm
-
-# Poll for completion (background task recommended)
-nlm studio status "$NOTEBOOK_ID"
-
-# Download completed artifacts
-nlm download infographic "$NOTEBOOK_ID" --id "$ARTIFACT_ID" --output assets/infographics/{package}_notebooklm.png
-nlm download video "$NOTEBOOK_ID" --id "$ARTIFACT_ID" --output assets/videos/{package}_explainer.mp4
-nlm download slide-deck "$NOTEBOOK_ID" --id "$ARTIFACT_ID" --output assets/slides/{package}_slides.pdf
-```
-
-### Multi-Source Upload Strategy
-
-**Why multiple sources matter:**
-- Single README uploads produce generic assets lacking technical depth
-- Review bundle provides architectural context and design intent
-- Multiple source files provide NotebookLM with complete implementation details
-- Better source material → More accurate, detailed, and professional assets
-- Code examples, tests, and documentation improve asset quality significantly
-
-**Hybrid approach (BEST): Review bundle + source files**
-
-**Why this works better:**
-- **Review bundle** = Executive summary with architecture, design intent, and component relationships
-- **Source files** = Implementation details, concrete code examples, and actual behavior
-- **Combined** = High-level understanding + low-level evidence = Best artifacts
-
-**Source file identification:**
-
-```bash
-# Step 1: Generate review bundle (architectural context)
-/review_bundle {{TARGET_DIR}}
-
-# Step 2: Find all relevant source files (excludes cache, build artifacts, venv, templates)
-cd {{TARGET_DIR}}
-
-# CRITICAL: Upload actual IMPLEMENTATION FILES, not just documentation
-# Core package structure MUST be included:
-# - Python source files (*.py) - the actual implementation
-# - Plugin metadata (.claude-plugin/plugin.json, hooks/hooks.json)
-# - Core configuration files
-# - Tests
-# - Key documentation (README, skill docs)
-
-# EXCLUDE template/legal files:
-# - CONTRIBUTING.md, SECURITY.md, LICENSE - generic templates
-# - CHANGELOG.md - version history only
-# - *-tree.txt - diagnostic output files
-# - Cache, build artifacts, venv
-
-# Priority files (upload these AFTER review bundle):
-find . -type f \( -name "*.py" -o -name "SKILL.md" -o -name "plugin.json" -o -name "hooks.json" \) \
-  ! -path "./.git/*" ! -path "./__pycache__/*" ! -path "./venv/*" \
-  ! -path "./.pytest_cache/*" ! -path "./.ruff_cache/*" | sort
-```
-
-**⚠️ CRITICAL: Upload implementation, NOT just templates!**
-
-The most common mistake is uploading only documentation files (README, CHANGELOG, etc.) without the actual Python source code. NotebookLM needs both:
-1. **Architectural context** (review bundle) → What is this system and why does it exist?
-2. **Implementation details** (source files) → How does it actually work?
-
-**Priority upload order:**
-1. **Review bundle** (generated via `/review_bundle`) - Architectural overview
-2. **Core implementation** - `core/*.py`, `*.py` (the actual code)
-3. **Plugin configuration** - `.claude-plugin/plugin.json`, `hooks/hooks.json`
-4. **Tests** - `tests/*.py`
-5. **Skill documentation** - `SKILL.md` (if exists)
-6. **Key README** - README.md (package overview)
-7. **Templates/guides** - Only if they explain IMPLEMENTATION details
-
-**EXCLUSION patterns:**
-
-**⚠️ QUICK CHECKLIST - Always exclude these:**
-- ❌ Lock files: `package-lock.json`, `poetry.lock`, `requirements.lock`, `yarn.lock`, `Cargo.lock`
-- ❌ Test outputs: `htmlcov/`, `coverage.xml`, `.coverage*`, `.pytest_cache/`
-- ❌ Version control: `.git/`, `.gitignore`, `.gitattributes`
-- ❌ Cache/build: `__pycache__/`, `*.pyc`, `build/`, `dist/`, `venv/`, `.venv/`
-- ❌ Generic templates: `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE`, `CHANGELOG.md`
-- ❌ State/diagnostics: `*-tree.txt`, `.claude/state/`, `*.pid`
-- ❌ Generated media: `assets/videos/*.mp4`, `assets/infographics/*.png`, `assets/slides/*`
-- ❌ CI/CD config: `.github/workflows/`
-
----
-
-**Version control & caches:**
-- `.git/`, `.gitignore`, `.gitattributes` - Version control metadata
-- `__pycache__/`, `*.pyc` - Python bytecode
-- `.pytest_cache/`, `.ruff_cache/`, `.benchmarks/` - Tool caches
-
-**State & diagnostics:**
-- `.claude/state/`, `*.pid`, `state*.json` - Claude Code state files
-- `*-tree.txt`, `pre-pack-tree.txt`, `post-pack-tree.txt` - Diagnostic outputs
-
-**Build & artifacts:**
-- `build/`, `dist/`, `*.egg-info/` - Build artifacts
-- `venv/`, `.venv/` - Virtual environments
-
-**CI/CD & infrastructure:**
-- `.github/workflows/` - CI/CD configuration (not package logic)
-- **Lock files (machine-generated dependency pinning):**
-  - `package-lock.json` - npm/yarn lock files
-  - `poetry.lock` - Poetry lock files
-  - `requirements.lock`, `Pipfile.lock` - pip lock files
-  - `yarn.lock`, `Cargo.lock`, `go.sum` - Other package manager locks
-
-**IDE & temp files:**
-- `.vscode/`, `.idea/`, `*.swp`, `*.swo` - IDE configuration
-- `*.tmp`, `*.bak`, `*.backup`, `*.old` - Temporary/backup files
-
-**Generic templates (NOT package-specific):**
-- `CONTRIBUTING.md`, `SECURITY.md`, `LICENSE` - Generic legal/templates
-- `CHANGELOG.md` - Version history only (doesn't explain implementation)
-
-**Generated outputs (OUTPUTS, not inputs):**
-- `assets/videos/*.mp4`, `assets/infographics/*.png` - Media OUTPUTS
-- `assets/slides/*` - Presentation OUTPUTS
-- **Test outputs (machine-generated test artifacts):**
-  - `htmlcov/`, `coverage.xml`, `.coverage*`, `.coverage.*` - Coverage reports
-  - `.pytest_cache/` - Pytest cache
-  - `test-results/`, `junit.xml` - Test result files
-  - `.hypothesis/`, `.mypy_cache/` - Tool caches
-
-**Binary artifacts:**
-- `*.so`, `*.pyd`, `*.dll`, `*.exe` - Compiled binaries
-- `*.zip`, `*.tar.gz`, `*.rar` - Compressed archives
-
-**Upload process:**
-
-```bash
-# === STEP 1: Generate review bundle (architectural context) ===
-echo "Generating review bundle for architectural context..."
-Skill(skill="review_bundle", args="{{TARGET_DIR}}")
-
-# Find the generated review bundle
-REVIEW_BUNDLE=$(ls -t P:/__csf/.staging/review_bundle_*.md 2>/dev/null | head -1)
-if [ -z "$REVIEW_BUNDLE" ]; then
-  echo "⚠️  Warning: Review bundle not found, continuing without it"
-else
-  echo "✓ Review bundle generated: $REVIEW_BUNDLE"
-fi
-
-# === STEP 2: Create NotebookLM notebook with clear temporary naming ===
-TEMP_NOTEBOOK_NAME="TEMP: {{package_name}} Media Generation [$(date +%Y%m%d_%H%M%S)]"
-nlm notebook create "$TEMP_NOTEBOOK_NAME"
-NOTEBOOK_ID=$(nlm notebook list | grep "$TEMP_NOTEBOOK_NAME" | head -1 | awk '{print $1}')
-
-if [ -z "$NOTEBOOK_ID" ]; then
-  echo "❌ Error: Failed to create notebook"
-  exit 1
-fi
-
-echo "✓ Notebook created: $NOTEBOOK_ID"
-
-# === STEP 3: Upload review bundle FIRST (architectural overview) ===
-if [ -n "$REVIEW_BUNDLE" ] && [ -f "$REVIEW_BUNDLE" ]; then
-  echo "Uploading review bundle..."
-  nlm source add "$NOTEBOOK_ID" --file "$REVIEW_BUNDLE" --wait
-  echo "✓ Review bundle uploaded"
-fi
-
-# === STEP 3.5: Upload a narration brief to control tone and length ===
-cat > /tmp/video_brief.md <<'EOF'
-# Video Brief
-
-Create a concise technical explainer video for engineers evaluating this package.
-
-Requirements:
-- Tone: technical, calm, direct, low-hype
-- Audience: developers, maintainers, technical reviewers
-- Length target: 60 to 120 seconds
-- Focus on:
-  1. what the package does
-  2. how the workflow operates
-  3. what files and outputs it creates
-  4. why the result is useful in practice
-- Prefer concrete nouns and file paths over abstract claims
-- Avoid marketing language, rhetorical questions, and dramatic setup
-- Avoid extended "before/after pain" storytelling
-- Avoid filler such as "imagine", "revolutionary", "seamless", "game-changing"
-- End with a brief technical summary, not a call-to-action
-EOF
-
-nlm source add "$NOTEBOOK_ID" --file /tmp/video_brief.md --wait
-echo "✓ Video brief uploaded"
-
-# === STEP 4: Upload source files (implementation details) ===
-# CRITICAL: Upload IMPLEMENTATION files FIRST, not just documentation!
-# Priority: *.py > plugin.json > hooks.json > SKILL.md > README.md
-#
-# EXCLUDE (see QUICK CHECKLIST above):
-# - Lock files: package-lock.json, poetry.lock, requirements.lock
-# - Test outputs: htmlcov/, coverage.xml, .coverage*
-# - Version control: .git/
-# - Cache/build: __pycache__/, venv/, build/, dist/
-# - Generic templates: CONTRIBUTING.md, SECURITY.md, LICENSE
-# - State/diagnostics: *-tree.txt
-# - Generated media: assets/videos/, assets/infographics/, assets/slides/
-# - CI/CD config: .github/workflows/
-
-echo "Uploading source files..."
-find . -type f \( -name "*.py" -o -name "*.json" -o -name "SKILL.md" -o -name "README.md" \) \
-  ! -path "./.git/*" \
-  ! -path "./__pycache__/*" \
-  ! -path "./venv/*" \
-  ! -path "./.venv/*" \
-  ! -path "./.pytest_cache/*" \
-  ! -path "./.ruff_cache/*" \
-  ! -path "./.benchmarks/*" \
-  ! -path "./build/*" \
-  ! -path "./dist/*" \
-  ! -path "./.eggs/*" \
-  ! -path "./htmlcov/*" \
-  ! -path "./assets/videos/*" \
-  ! -path "./assets/infographics/*" \
-  ! -path "./assets/slides/*" \
-  ! -path "./.github/workflows/*" \
-  ! -name "package-lock.json" \
-  ! -name "poetry.lock" \
-  ! -name "requirements.lock" \
-  ! -name "yarn.lock" \
-  ! -name "Cargo.lock" \
-  ! -name "*.egg-info/*" \
-  ! -name "*-tree.txt" \
-  ! -name ".coverage*" \
-  ! -name "coverage.xml" \
-  ! -name "junit.xml" | head -30 | \
-  while read file; do
-    echo "Uploading: $file"
-    nlm source add "$NOTEBOOK_ID" --text "$(cat "$file")" --title "$(basename "$file")" --wait
-  done
-
-# === STEP 5: Upload key documentation (if not already included) ===
-if [ -f "README.md" ]; then
-  nlm source add "$NOTEBOOK_ID" --file README.md --wait 2>/dev/null || true
-fi
-
-# === STEP 6: Verify all sources uploaded ===
-echo ""
-echo "=== Sources uploaded to notebook $NOTEBOOK_ID ==="
-nlm source list "$NOTEBOOK_ID"
-echo ""
-
-# === STEP 7: NOW generate assets (only after ALL uploads complete) ===
-echo "Starting asset generation..."
-
-
-### Video Compliance Verification & Regeneration (Option B Pipeline)
-
-**Objective**: Verify generated videos comply with technical writing standards and regenerate non-compliant videos using Option B (Script → TTS → ffmpeg).
-
-**When**: Automatically runs after video download (NotebookLM generation completes).
-
-**Why this matters**: NotebookLM videos often contain casual language ("cool", "awesome", "super") even with technical briefs. Option B provides full control over compliance with faster iteration than regenerating via NotebookLM.
-
-**Compliance standards**:
-- **Absolutely forbidden**: "cool", "awesome", "super", "amazing", "ultra", "mega", "neat", "nifty", "handy", "sweet", "sick", "dope", "fire"
-- **Marketing hype**: "game-changing", "revolutionary", "seamless", "transformative"
-- **Anti-patterns**: "imagine", "picture this", "envision"
-
-**Verification workflow with faster-whisper**:
-
-```bash
-# Step 1: Install faster-whisper if not available
-pip install faster-whisper
-
-# Step 2: Transcribe and verify video compliance
-python << 'VERIFY_EOF'
-from faster_whisper import WhisperModel
-import json
-import re
-
-FORBIDDEN_PATTERNS = [
-    r'super', r'cool', r'awesome', r'amazing',
-    r'ultra', r'mega', r'neat', r'nifty',
-    r'handy', r'sweet', r'sick', r'dope',
-    r'fire', r'game.?changing', r'revolutionary',
-    r'seamless', r'transformative', r'imagine',
-    r'picture this', r'envision'
-]
-
-def check_compliance(text):
-    violations = []
-    text_lower = text.lower()
-    for pattern in FORBIDDEN_PATTERNS:
-        matches = re.finditer(pattern, text_lower, re.IGNORECASE)
-        for match in matches:
-            violations.append({
-                'word': match.group(),
-                'position': match.start(),
-                'context': text[max(0, match.start()-30):min(len(text), match.end()+30)]
-            })
-    return violations
-
-# Transcribe
-model = WhisperModel("base", device="cpu", compute_type="int8")
-segments, info = model.transcribe("assets/videos/{package}_explainer.mp4", beam_size=5)
-
-# Check violations
-all_violations = []
-for segment in segments:
-    violations = check_compliance(segment.text.strip())
-    for v in violations:
-        all_violations.append({**v, 'time': f"{segment.start:.1f}-{segment.end:.1f}s"})
-
-# Save transcript with violations
-with open('assets/videos/{package}_transcript.json', 'w') as f:
-    json.dump({'violations': all_violations, 'count': len(all_violations)}, f)
-
-# Report
-if all_violations:
-    print(f"❌ FAILED: {len(all_violations)} violations found")
-    exit(1)
-else:
-    print("✅ PASSED: No forbidden words")
-    exit(0)
-VERIFY_EOF
-```
-
-**Option B regeneration pipeline** (if violations found):
-
-```bash
-# Step 1: Generate compliant script (no forbidden words)
-cat > assets/scripts/{package}_compliant_script.txt << 'SCRIPT_EOF'
-[Write technical script without forbidden words]
-SCRIPT_EOF
-
-# Step 2: Install free TTS (edge-tts)
-pip install edge-tts
-
-# Step 3: Generate compliant audio
-edge-tts --file assets/scripts/{package}_compliant_script.txt   --write-media assets/audio/{package}_compliant_audio.mp3
-
-# Step 4: Replace audio track using ffmpeg
-ffmpeg -i assets/videos/{package}_explainer.mp4   -i assets/audio/{package}_compliant_audio.mp3   -c:v copy -map 0:v:0 -map 1:a:0 -shortest   assets/videos/{package}_compliant.mp4 -y
-
-# Step 5: Re-verify compliance
-# Run faster-whisper verification again on compliant video
-```
-
-**Decision factors**:
-- **Speed**: Option B (2-3 minutes) vs NotebookLM regeneration (5-10 minutes + uncertain)
-- **Control**: Full script control vs AI generation variability
-- **Cost**: Free (edge-tts) vs NotebookLM credits
-- **Iteration**: Script changes are instant vs re-uploading sources to NotebookLM
-
-**Duration**: ~3-5 minutes for full verification + regeneration (if needed)
-
-**Output**:
-- `assets/videos/{package}_transcript.json` - Transcript with violation markers
-- `assets/videos/{package}_compliant.mp4` - Compliant video (0 violations)
-- Verification report with violation count and locations
-
-**Integration**: Runs automatically after video download, before notebook cleanup
-
-
-
-**Notebook cleanup after asset generation:**
-
-```bash
-# ⚠️  SAFETY: This cleanup is OPTIONAL and MANUAL
-# Review the matched notebook ID before running to ensure it's the correct one
-
-# After generating all assets, you can clean up the temporary notebook
-# Step 1: List all notebooks to see what exists
-echo "Current notebooks:"
-nlm notebook list
-
-# Step 2: Find the temporary notebook by name pattern
-NOTEBOOK_ID=$(nlm notebook list | grep "TEMP: {{package_name}} Media Generation" | head -1 | awk '{print $1}')
-
-# Step 3: Show what would be deleted (SAFETY CHECK)
-if [ -n "$NOTEBOOK_ID" ]; then
-  echo "Found temporary notebook: $NOTEBOOK_ID"
-  echo "This will ONLY delete notebooks matching: 'TEMP: {{package_name}} Media Generation'"
-  read -p "Delete this temporary notebook? (y/N): " CONFIRM
-
-  # Step 4: Delete only with explicit confirmation
-  if [ "$CONFIRM" = "y" ] || [ "$CONFIRM" = "Y" ]; then
-    if nlm notebook delete --id "$NOTEBOOK_ID" 2>/dev/null; then
-      echo "✓ Deleted temporary notebook: $NOTEBOOK_ID"
-    else
-      echo "✗ Failed to delete notebook (may have been deleted already)"
-      exit 1
-    fi
-  else
-    echo "✗ Cleanup cancelled - notebook kept"
-  fi
-else
-  echo "✓ No temporary notebooks found matching pattern"
-fi
-```
-
-**Safety features**:
-- **Confirmation prompt**: Requires explicit `y` before deletion
-- **Pattern matching**: Only deletes notebooks with exact pattern match
-- **Error handling**: Detects and reports deletion failures
-- **Dry-run mode**: Shows what will be deleted before asking for confirmation
-
-**⚠️  WARNING: Deletion is permanent**
-
-**Before running cleanup**, verify:
-1. **The notebook ID matches**: Check that `NOTEBOOK_ID` is the temporary notebook you just created
-2. **No similar notebook names**: Ensure you don't have real notebooks with similar names
-3. **Backup important data**: NotebookLM doesn't have undelete - export important notebooks first
-
-**Risks mitigated by this approach**:
-- ❌ **Overly broad grep pattern**: Fixed by exact pattern match + confirmation prompt
-- ❌ **Silent failures**: Fixed by explicit error handling and exit codes
-- ❌ **Wrong notebook deletion**: Fixed by dry-run mode + user confirmation
-- ❌ **User confusion**: Fixed by clear "TEMP:" prefix + safety warnings
-
-**Why use clearly named temp notebooks:**
-- **Easy identification**: "TEMP: {package} Media Generation [timestamp]" makes it obvious these are temporary
-- **Prevents clutter**: Don't leave generic "My Notebook" entries in your NotebookLM library
-- **Safe cleanup**: Clear naming pattern ensures you only delete temp notebooks, not real ones
-- **Debugging**: Timestamp helps identify which notebook belongs to which /package run
-
-**Usage example - Typical cleanup session:**
-
-```bash
-# After running /package, you have a temporary notebook
-# Let's clean it up
-
-$ nlm notebook list
-Notebooks:
-abc123  TEMP: mylib Media Generation [20260310_131419]
-def456  My Project Research
-ghi789  Package Documentation
-
-# Run the cleanup command
-$ NOTEBOOK_ID=$(nlm notebook list | grep "TEMP: mylib Media Generation" | head -1 | awk '{print $1}')
-$ echo "Current notebooks:"
-$ nlm notebook list
-Notebooks:
-abc123  TEMP: mylib Media Generation [20260310_131419]
-def456  My Project Research
-ghi789  Package Documentation
-
-$ echo "Found temporary notebook: abc123"
-Found temporary notebook: abc123
-
-$ echo "This will ONLY delete notebooks matching: 'TEMP: mylib Media Generation'"
-This will ONLY delete notebooks matching: 'TEMP: mylib Media Generation'
-
-$ read -p "Delete this temporary notebook? (y/N): " CONFIRM
-Delete this temporary notebook? (y/N): y
-
-$ if nlm notebook delete --id "abc123" 2>/dev/null; then
->   echo "✓ Deleted temporary notebook: abc123"
-> else
->   echo "✗ Failed to delete notebook (may have been deleted already)"
->   exit 1
-> fi
-✓ Deleted temporary notebook: abc123
-
-$ nlm notebook list
-Notebooks:
-def456  My Project Research
-ghi789  Package Documentation
-```
-
-**Troubleshooting - Common cleanup issues:**
-
-**Issue 1: "NOTEBOOK_ID is empty"**
-- **Cause**: No notebooks match the pattern (already deleted or never created)
-- **Solution**: This is expected - no cleanup needed
-- **Verify**: Run `nlm notebook list` to see current notebooks
-
-**Issue 2: "Pattern doesn't match"**
-- **Cause**: Package name in grep pattern doesn't match actual notebook name
-- **Solution**: Use broader pattern or manually select notebook ID from list
-- **Example**: `grep "TEMP: mylib"` instead of `grep "TEMP: mylib Media Generation"`
-
-**Issue 3: "Multiple notebooks match"**
-- **Cause**: Multiple /package runs created temp notebooks
-- **Solution**: Review list and decide which to delete, or delete all that match
-- **Safe approach**: Run cleanup multiple times, confirm each deletion individually
-
-**Issue 4: "Permission denied" or "Deletion fails"**
-- **Cause**: NotebookLM authentication issue or network problem
-- **Solution**:
-  1. Check `nlm` CLI is authenticated: `nlm auth status`
-  2. Re-authenticate if needed: `nlm login`
-  3. Verify network connectivity
-  4. Try manual deletion via NotebookLM web interface
-
-**Quality comparison:**
-
-| Approach | Source Material | Asset Quality | Time |
-|----------|----------------|---------------|------|
-| **Single README** | 1 file | Generic, shallow | Fast (~30s upload) |
-| **Multi-source** | 10-50 files | Accurate, detailed, professional | Medium (~2min upload) |
-| **Review bundle only** | 1 comprehensive file | Good architecture, missing implementation details | Fast (~30s upload) |
-| **Review bundle + source files** | 1 architecture doc + 10-50 files | **Best quality** - context + implementation | Medium (~2min total) |
-
-**Recommended strategy:**
-1. **Default**: Review bundle + source files (production assets)
-   - Review bundle provides architectural overview and design intent
-   - Source files provide implementation details and concrete examples
-   - Best of both worlds: high-level understanding + low-level evidence
-2. **Fast iteration**: Review bundle only for testing /package workflow
-3. **Fallback**: Multi-source without review bundle if review_bundle skill unavailable
-3. **Fallback**: Single README if sources unavailable (degraded quality)
-
-**Recommended video structure:**
-```
-CONTEXT (10-15s): Name the package and its purpose in one sentence.
-WORKFLOW (25-40s): Show how it detects type, generates structure, and validates outputs.
-ARTIFACTS (20-30s): Call out the key outputs: docs, CI/CD, flowchart, video, slides.
-SUMMARY (10-15s): Close with the practical result for a developer using the package.
-```
-
-**Avoid this anti-pattern:**
-- long “problem/pain/agitate” intros
-- generic business narration
-- theatrical transitions
-- repeating the same feature list in multiple ways
-- durations over 2 minutes unless the user explicitly wants a deep dive
-
-**Why the old approach was annoying:**
-- PBS tends to produce sales-demo narration rather than technical explanation
-- fixed long sections bias NotebookLM toward overlong scripts
-- `auto_select` style makes tone unpredictable
-- the result often sounds generic even when the source material is technical
-
-**Quality verification:**
-
-### Banner Validation (`validate_banner.py`)
-
-After banner generation, automatically validate quality using `scripts/validate_banner.py`:
-
-**Basic checks (always run):**
-- File exists and readable
-- Dimensions: 1200×630 (GitHub social preview standard)
-- File size: 10KB - 500KB (reasonable range)
-- Image not corrupted
-
-**Vision analysis (requires `Z_AI_API_KEY`):**
-- Text readability (contrast ratio ≥ 4.5:1)
-- Package name visibility
-- Professionalism assessment
-- Visual appeal rating (1-10 scale)
-- Specific issues + recommendations
-
-**Usage:**
-```bash
-# Basic validation only
-python scripts/validate_banner.py assets/banners/{package}_banner.png
-
-# With Z.ai Vision API (requires Z_AI_API_KEY env var)
-python scripts/validate_banner.py assets/banners/{package}_banner.png
-
-# Exit with error if validation fails
-python scripts/validate_banner.py assets/banners/{package}_banner.png --fail-on-issues
-```
-
-**Quality criteria:**
-- **Excellent** (8-10): Ready for portfolio use
-- **Good** (6-7): Acceptable, minor improvements possible
-- **Needs improvement** (<6): Should regenerate before publishing
-
-**Other asset verification:**
-- Check assets contain package name
-- Verify relevance to package purpose
-- Validate formats (diagram, video, slides)
-- Reject generic/wrong-format assets and retry
-
-**Duration**: 5-10 minutes (depending on selected assets)
-
-**Output**: Professional visual assets in `assets/` directory
-- `assets/banners/{package}_banner.png`
-- `assets/infographics/{package}_architecture.png`
-- `assets/videos/{package}_explainer_pbs.mp4`
-- `assets/slides/{package}_slides.pdf` (view and download as PDF)
-
-**Rationale**: Media generation after code review ensures we're creating assets for quality code. Portfolio polish (PHASE 5) then references these visual assets in README.md.
-
----
-
-## System Overview Diagrams (GitHub-First Mermaid)
-
-**Objective**: Generate editable Mermaid architecture flowcharts that render cleanly on GitHub.
-
-**When**: Runs automatically after NotebookLM media generation.
-
-**What this does:**
-- Creates plain Mermaid flowcharts for the README and optional supporting docs
-- Generates a high-level system overview and workflow diagram
-- Outputs source diagrams to `docs/diagrams/` for easy editing and git tracking
-- Embeds the GitHub-safe overview directly in `README.md`
-
-**GitHub compatibility rules (mandatory):**
-- Target **GitHub's Mermaid renderer**, not Mermaid Live's broader feature set
-- Prefer `graph TB` or `flowchart TB` system-overview diagrams for anything embedded in `README.md`
-- Keep labels short and structural: phases, systems, outputs, decisions
-- Do **not** use Mermaid C4 blocks (`C4Context`, `C4Container`, `C4Component`) in GitHub-facing README sections
-- Do **not** emit `UpdateLayoutConfig(...)`, `include:`, or malformed init closers like `%%%`
-- If technical C4 diagrams are still useful, keep them as optional secondary docs and verify they are not the primary README artifact
-
-**Diagram types generated:**
-
-| Diagram | Purpose | Output File | Style |
-|---------|---------|-------------|-------|
-| **System Overview** | High-level architecture and outputs | `docs/diagrams/system_overview.mmd` | Mermaid flowchart |
-| **Workflow** | Phase-by-phase pipeline view | `docs/diagrams/workflow.mmd` | Mermaid flowchart |
-
-**Why this style:**
-- **Editable**: Text-based → easy to update alongside code
-- **Version-controllable**: Track changes in git like code
-- **Renderable**: GitHub renders basic Mermaid flowcharts more consistently than C4
-- **Readable**: Better portfolio presentation for recruiters and repo visitors
-- **Portable**: Same structure works in README, docs pages, and HTML wrappers
-
-**Execution flow:**
-```bash
-# 1. Create diagrams directory
-mkdir -p docs/diagrams
-
-# 2. Generate GitHub-safe Mermaid flowcharts
-# Prefer system_overview.mmd and workflow.mmd
-
-# 3. Copy GitHub-compatible overview into README.md
-```mermaid
-graph TB
-    Input[User: /{{package_name}}] --> Detect[Detect Package Type]
-    Detect --> Type{Package Type?}
-    Type -->|Plugin| Plugin[Plugin Structure]
-    Type -->|Skill| Skill[Skill Structure]
-    Type -->|Library| Library[Library Structure]
-    Plugin --> Polish[Portfolio Polish]
-    Skill --> Polish
-    Library --> Polish
-    Polish --> Docs[Documentation]
-    Polish --> Media[Media Assets]
-    Polish --> CI[CI/CD]
-    Docs --> Output[GitHub-Ready Package]
-    Media --> Output
-    CI --> Output
-```
-```
-
-**Duration**: ~1 minute (both flowcharts)
-
-**Auto-skip conditions:**
-- Mermaid diagrams already exist in `docs/diagrams/`
-- User explicitly opts out with `--skip mermaid`
-
-**Provider requirements:**
-- **mermaid-diagrams skill**: Installed via `/universal-skills-manager` or ClawHub
-- No API keys required (pure Mermaid syntax generation)
-
-**Quality verification:**
-- Check the README diagram is a plain Mermaid flowchart, not C4
-- Verify relationships show the major phases, decisions, and outputs
-- Validate Mermaid syntax renders correctly
-- Scan `README.md` and `docs/diagrams/*.mmd` for banned patterns before finishing:
-  - `C4Context`
-  - `C4Container`
-  - `C4Component`
-  - `System_Bnd`
-  - `Container_Bnd`
-  - `Component_Bnd`
-  - `UpdateLayoutConfig`
-  - `include:`
-  - `%%%`
-
-**Comparison: Mermaid vs NotebookLM diagrams**
-
-| Aspect | Mermaid Diagrams | NotebookLM Diagrams |
-|--------|-----------------|---------------------|
-| **Format** | Text (`.mmd` files) | Images (`.png`) |
-| **Version control** | ✅ Git-diff friendly | ❌ Binary changes |
-| **Editability** | ✅ Text editor | ❌ Regenerate only |
-| **Renderers** | GitHub, VS Code, Mermaid Live | Image viewers |
-| **Best for** | Technical documentation, architecture specs | Social preview, quick visuals |
-| **Location** | `docs/diagrams/` | `assets/infographics/` |
-| **Automation** | Auto-generated in /package | Auto-generated in /package |
-
-**Both are generated automatically** by `/package` - each serves a different purpose.
-
----
-
-## GitHub Pages Video Player
-
-**Objective**: Generate a single-purpose HTML page for browser playback of the explainer video.
-
-**When**: Runs after the explainer video is generated.
-
-**What this does:**
-- Creates `docs/video.html` as a lightweight HTML5 player page
-- Keeps GitHub Pages focused on playback only
-- Leaves architecture and workflow explanation on the main GitHub repository page
-
-**Generated asset:**
-
-| Asset | Purpose | Format | Output |
-|-------|---------|--------|--------|
-| **Video player page** | Browser playback for the README video link | HTML | `docs/video.html` |
-
-**Integration with README.md:**
-
-```markdown
-[![Watch the demo with audio](assets/videos/{{package_name}}_video_poster.png)](https://{{github_username}}.github.io/{{package_name}}/docs/video.html)
-```
-
-**Rules:**
-- Do not create extra GitHub Pages docs for architecture or workflow unless the user explicitly asks for a separate docs site
-- Keep GitHub as the source of truth for technical documentation
-- Use GitHub Pages only to solve the inline video playback limitation
-
----
-
-## Code Flow Diagrams (On-Demand)
-
-**For function-level visualization**, use `/code-flow-visualizer` separately:
-
-```bash
-# Visualize a specific function
-/code-flow-visualizer path/to/file.py function_name
-
-# Auto-detect main functions
-/code-flow-visualizer path/to/file.py
-```
-
-**When to use:**
-- Documenting complex algorithm logic
-- Explaining code flow in pull requests
-- Creating onboarding diagrams for new contributors
-- Analyzing unfamiliar codebases
-
-**Output:** Mermaid flowchart showing conditional branches, loops, and data flow
-
-**Note:** Not automatically invoked by `/package` - use on-demand for specific files.
-
----
-
-## GitHub Slide Deck Integration
-
-**PDF Usage:**
-
-| Format | Best For | GitHub Integration |
-|--------|----------|-------------------|
-| **PDF** | Primary viewing format on GitHub | `[View Slides (PDF)](assets/slides/{package}_slides.pdf)` |
-
-**Recommended approach:**
-1. Keep the published slide deck in `assets/slides/` as PDF
-2. Make the PDF the first and most prominent slide link in `README.md`
-3. Use a slide preview image that links directly to the PDF
-4. Prefer this README pattern:
-   `View Slides (PDF)`, then `Download PDF`
+> READ: resources/phases/PHASE-4.7-media-gen.md
 
 ---
 
 ## PHASE 4.8: Interactive Course (Auto-invoked)
 
-**Objective**: Generate a self-contained HTML course that teaches how the package works using the codebase-to-course skill.
-
-**When**: Automatically runs after PHASE 4.7 (Media Generation) completes, before PHASE 5 (Portfolio Polish).
-
-**What this does:**
-- Invokes the codebase-to-course skill to analyze package source code
-- Generates a standalone HTML file with scroll-based navigation, animations, quizzes, and code↔English translations
-- Outputs to `docs/{package}_course.html` for GitHub Pages hosting
-
-**Why use codebase-to-course:**
-- Produces a premium interactive learning experience (not markdown)
-- Self-contained HTML with only Google Fonts dependency
-- Visual-first design: tooltips, animations, quizzes, metaphors
-- Portfolio visitors get a "Nerdificient" branded experience that differentiates from commodity packages
-
-**Execution:**
-```
-/codebase-to-course {{TARGET_DIR}}
-```
-
-**Output:**
-- `docs/{package}_course.html` — standalone HTML course
-- Link in README "Additional Media Assets" section pointing to GitHub Pages URL
-
-**README integration:**
-After generating the course HTML, add to README "Additional Media Assets" section:
-
-```markdown
-### Interactive Course
-
-[**Learn how {{package_name}} works →**](https://{{github_username}}.github.io/{{package_name}}/docs/{{package_name}}_course.html)
-
-*An interactive walkthrough of the architecture, components, and how everything fits together.*
-```
-
-**Auto-skip conditions:**
-- User explicitly opts out with `--skip course`
-- Package has no source code (e.g., pure documentation package)
-- codebase-to-course skill is not installed
-
-**GitHub Pages requirement:**
-The course requires GitHub Pages to be enabled for in-browser viewing. If Pages is not enabled, the README link will still work as a direct file link to `docs/{package}_course.html` in the repository.
-
-**Duration**: 3-5 minutes (codebase analysis + HTML generation)
-
-**HTML Preview Update**:
-The HTML preview (`docs/README-preview.html`) does not include the course — it focuses on README rendering. The course HTML is a separate file linked from README.
+> READ: resources/phases/PHASE-4.8-interactive-course.md
 
 ---
 
@@ -2355,19 +962,19 @@ jobs:
 **What this does**:
 
 1. **Monorepo Extraction** (if package is in a monorepo):
-   - Uses `extract_from_monorepo.py` to create clean git history
+   - Uses `../../scripts/extract_from_monorepo.py` to create clean git history
    - Two methods: subtree split (preserves history) or fresh init (clean slate)
    - Creates standalone git repository in target directory
 
 2. **GitHub Repository Creation**:
-   - Uses `create_github_repo.py` to create repository via GitHub CLI (gh)
+   - Uses `../../scripts/create_github_repo.py` to create repository via GitHub CLI (gh)
    - Sets repository to public
    - Adds remote and pushes code
    - Verifies repository creation
 
 **Scripts**:
-- `scripts/extract_from_monorepo.py` - Monorepo extraction
-- `scripts/create_github_repo.py` - GitHub repository creation
+- `../../scripts/extract_from_monorepo.py` - Monorepo extraction
+- `../../scripts/create_github_repo.py` - GitHub repository creation
 
 **Prerequisites**:
 - GitHub CLI (`gh`) installed and authenticated
@@ -2380,8 +987,8 @@ jobs:
 
 # Or manually after package creation
 cd P:/packages/my-package
-python ../gitready/scripts/extract_from_monorepo.py . my-package
-python ../gitready/scripts/create_github_repo.py my-package . "My awesome package"
+python ../../scripts/extract_from_monorepo.py . my-package
+python ../../scripts/create_github_repo.py my-package . "My awesome package"
 ```
 
 **Output**: Public GitHub repository with code pushed and ready for use.
@@ -2420,7 +1027,7 @@ python ../gitready/scripts/create_github_repo.py my-package . "My awesome packag
    - Generates security policy template
    - Includes vulnerability reporting instructions
 
-**Script**: `scripts/finalize_github_repo.py`
+**Script**: `../../scripts/finalize_github_repo.py`
 
 **Usage**:
 ```bash
@@ -2429,7 +1036,7 @@ python ../gitready/scripts/create_github_repo.py my-package . "My awesome packag
 
 # Or manually after repo creation
 cd P:/packages/my-package
-python ../gitready/scripts/finalize_github_repo.py my-package . --package-type plugin
+python ../../scripts/finalize_github_repo.py my-package . --package-type plugin
 ```
 
 **Options**:
@@ -2446,7 +1053,7 @@ python ../gitready/scripts/finalize_github_repo.py my-package . --package-type p
 
 ---
 
-## PHASE 4.5: Quality Scanning (Optional, during validation)
+## PHASE 4.6: Quality Scanning (Optional, during validation)
 
 **Objective**: Automated security and dependency scanning during validation phase.
 
@@ -2476,7 +1083,7 @@ python ../gitready/scripts/finalize_github_repo.py my-package . --package-type p
    - Calculates test ratio
    - Reports total lines of code
 
-**Script**: `scripts/scan_package_quality.py`
+**Script**: `../../scripts/scan_package_quality.py`
 
 **Usage**:
 ```bash
@@ -2484,10 +1091,10 @@ python ../gitready/scripts/finalize_github_repo.py my-package . --package-type p
 /gitready my-package --scan-quality
 
 # Or as standalone check
-python scripts/scan_package_quality.py P:/packages/my-package
+python ../../scripts/scan_package_quality.py P:/packages/my-package
 
 # With options
-python scripts/scan_package_quality.py . --skip-badges --save-report
+python ../../scripts/scan_package_quality.py . --skip-badges --save-report
 ```
 
 **Options**:
@@ -2502,8 +1109,64 @@ python scripts/scan_package_quality.py . --skip-badges --save-report
 
 ---
 
-## PHASE 8: Cleanup (Auto-invoked)**Objective**: Detect and remove obsolete files after refactoring/scaffolding.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**What this detects**:- **Backup files** (*.backup-*, *.old, *.bak) - Shows file size and removal command- **Orphaned test files** - Tests for modules that no longer exist- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs- **Duplicate implementations** - Known refactoring patterns (e.g., skill_enforcement → skill_first_gate)**Output**: `CLEANUP_REPORT.md` with:- Categorized list of files to remove- Evidence for why each should be removed- Bulk removal commands ready to run- Commit message template**Usage**: Review report and manually remove files (recommended for first run).
-## PHASE 9: Git Ready (Auto-invoked)**Objective**: Initialize git repository and create initial commit.**When**: Automatically runs after PHASE 4 (Validate) completes.**What this does**:- Initialize git repository (if not already a git repo): `git init`- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`- Set main branch: `git branch -M main`- Skips if `.git/` directory already exists**Manual steps** (user does when ready):- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`- Push to GitHub: `git push -u origin main`## PHASE 10: Recruiter Readiness Validation (Auto-invoked)**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.**Checks performed**:- TODO comments in pyproject.toml (suggests incomplete work)- Plan files in root (looks messy/unprofessional)- Missing CI/CD workflow (reduces perceived professionalism)- No tests directory (lack of quality evidence)- Version is 0.0.x or 0.1.x (suggests experimental/unstable)**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)**Auto-fixes available**: Remove TODOs, move plan files to docs/planning/, create CI/CD workflow, bump version to 0.5.0 or 1.0.0.**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
+## PHASE 8: Cleanup (Auto-invoked)
+
+**Objective**: Detect and remove obsolete files after refactoring/scaffolding.
+
+**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.
+
+**What this detects**:
+- **Backup files** (`*.backup-*`, `*.old`, `*.bak`) - Shows file size and removal command
+- **Orphaned test files** - Tests for modules that no longer exist
+- **Obsolete documentation** - Old CHANGELOGs, phase completion docs, verification docs
+- **Duplicate implementations** - Known refactoring patterns (e.g., `skill_enforcement` → `skill_first_gate`)
+
+**Output**: `CLEANUP_REPORT.md` with:
+- Categorized list of files to remove
+- Evidence for why each should be removed
+- Bulk removal commands ready to run
+- Commit message template
+
+**Usage**: Review report and manually remove files (recommended for first run).
+
+---
+
+## PHASE 9: Git Ready (Auto-invoked)
+
+**Objective**: Initialize git repository and create initial commit.
+
+**When**: Automatically runs after PHASE 4 (Validate) completes.
+
+**What this does**:
+- Initialize git repository (if not already a git repo): `git init`
+- Add all files and create initial commit: `git commit -m "Initial commit: Package scaffold..."`
+- Set main branch: `git branch -M main`
+- Skips if `.git/` directory already exists
+
+**Manual steps** (user does when ready):
+- Add remote: `git remote add origin https://github.com/{{USERNAME}}/{{NAME}}.git`
+- Push to GitHub: `git push -u origin main`
+
+---
+
+## PHASE 10: Recruiter Readiness Validation (Auto-invoked)
+
+**Objective**: Validate package is showcase-ready for recruiters before GitHub posting.
+
+**When**: Automatically runs after PHASE 5 (Portfolio Polish) completes.
+
+**Checks performed**:
+- TODO comments in `pyproject.toml` (suggests incomplete work)
+- Plan files in root (looks messy/unprofessional)
+- Missing CI/CD workflow (reduces perceived professionalism)
+- No tests directory (lack of quality evidence)
+- Version is `0.0.x` or `0.1.x` (suggests experimental/unstable)
+
+**Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor)
+
+**Auto-fixes available**: Remove TODOs, move plan files to `docs/planning/`, create CI/CD workflow, bump version to `0.5.0` or `1.0.0`.
+
+**Output**: `RECRUITER_READINESS_REPORT.md` with score, issues found, and one-command fixes.
 
 ## Integration
 
@@ -2597,6 +1260,33 @@ checklist=(
 ```
 
 ## Changelog
+
+### v5.16.0 (2026-03-25)
+- ✅ **4-PASS COURSE PIPELINE**: PHASE 4.8 now generates courses in 4 progressive passes (Structure → Visual Design → Interactive Elements → Polish), each adding a quality layer
+- ✅ **FULL CODEBASE-TO-COURSE RESOURCES**: `resources/codebase-to-course/design-system.md` (403 lines) and `interactive-elements.md` (1045 lines) copied into skill — all 17 interactive element patterns now available inline
+- ✅ **COMPLETE DESIGN TOKENS**: All 30+ tokens from codebase-to-course inlined (semantic colors, actor colors, spacing scale, shadow depth, animation easing, type scale)
+- ✅ **REQUIRED READING PATTERN**: PHASE 4.8 explicitly instructs reading bundled resources before each pass — no more "suggested reference" that gets skipped
+- ✅ **GLOSSARY TOOLTIP SYSTEM**: Full tooltip JS with `position: fixed`, body-append, flip-on-overflow, hover + tap support
+- ✅ **ALL INTERACTIVE ELEMENTS**: Quizzes, drag-and-drop matching, group chat animation, data flow animation, architecture diagram, layer toggle, spot-the-bug, scenario quiz
+- ✅ **PER-FILE BUG CHECKLISTS**: Each pass has its own checklist, ensuring issues are caught at the right layer
+
+### v5.17.0 (2026-03-25)
+- ✅ **P3 STRUCTURAL CONSOLIDATION**: Extracted 4 largest phases to `resources/phases/` for progressive disclosure
+  - PHASE 1.7 → `resources/phases/PHASE-1.7-plugin-standards.md` (177 lines)
+  - PHASE 3 → `resources/phases/PHASE-3-templates.md` (479 lines)
+  - PHASE 4.7 → `resources/phases/PHASE-4.7-media-gen.md` (823 lines)
+  - PHASE 4.8 → `resources/phases/PHASE-4.8-interactive-course.md` (147 lines)
+- ✅ **SKILL.md REDUCED**: 3,012 lines → 1,407 lines (53% reduction)
+- ✅ **FIXED PHASE ORDERING**: PHASE 4.6 now follows PHASE 4.5 (not PHASE 7)
+- ✅ **FIXED MERGED HEADERS**: PHASE 1.6 warning block split, PHASE 8/9/10 blob split
+
+### v5.15.0 (2026-03-24)
+- ✅ **INLINE COURSE GENERATION**: PHASE 4.8 no longer delegates to /codebase-to-course — course generation is now inline
+- ✅ **WARM PALETTE INTEGRATION**: Course HTML uses PHASE 3 warm palette CSS (no purple gradients)
+- ✅ **DESIGN TOKENS INLINED**: Typography (Bricolage Grotesque, DM Sans, JetBrains Mono), Catppuccin syntax highlighting, accessibility features all referenced from PHASE 3
+- ✅ **4-STEP EXECUTION**: Renamed curriculum steps from "Phase X:" to "Step X:" to avoid collision with skill workflow "PHASE" headers
+- ✅ **BUG PREVENTION CHECKLIST**: Pre-declaration verification for CSS variables, prefers-color-scheme, prefers-reduced-motion, ARIA, tooltips
+- ✅ **THEME TOGGLE FIX**: PHASE 3 HTML template now uses localStorage-first check with system prefers-color-scheme fallback and mid-session change listener (dark-mode users no longer see light flash on first visit)
 
 ### v5.14.0 (2026-03-24)
 - ✅ **INTERACTIVE COURSE (PHASE 4.8)**: Invokes codebase-to-course skill to generate standalone HTML course
