@@ -3,12 +3,46 @@
 
 Run as a PHASE 0 prerequisite check before any phase that reads bundled resources.
 Exits 0 on success, 1 on any failure.
+
+Also validates junction names to prevent problematic characters (like @) that cause
+slash command invocation issues on Windows.
 """
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
+
+
+# Characters that cause problems in Windows junction names or slash command invocation
+INVALID_JUNCTION_CHARS = re.compile(r"[@?*:<>|+]")
+
+
+def sanitize_junction_name(name: str) -> str:
+    """Remove invalid characters from junction/skill names.
+
+    Use this before creating junctions to ensure names work with slash commands.
+    """
+    return INVALID_JUNCTION_CHARS.sub("", name)
+
+
+def validate_junction_name(name: str) -> list[str]:
+    """Validate that a junction/skill name doesn't contain problematic characters.
+
+    Returns list of error messages (empty if valid).
+    """
+    errors = []
+    if INVALID_JUNCTION_CHARS.search(name):
+        # Find all invalid characters
+        invalid_chars = set(INVALID_JUNCTION_CHARS.findall(name))
+        sanitized = sanitize_junction_name(name)
+        errors.append(
+            f"Junction name '{name}' contains invalid characters: {invalid_chars}. "
+            f"These characters cause issues with slash command invocation on Windows. "
+            f"Suggested fix: rename to '{sanitized}' before creating junctions."
+        )
+    return errors
 
 
 def validate_pointers(skill_md_path: str | Path | None = None) -> list[str]:
@@ -57,6 +91,14 @@ def validate_pointers(skill_md_path: str | Path | None = None) -> list[str]:
 
 def main() -> int:
     errors = validate_pointers()
+
+    # Also validate junction name from the package structure
+    skill_md_path = Path(__file__).parent.parent.parent / "SKILL.md"
+    if skill_md_path.exists():
+        # The package name is the parent directory name
+        package_name = skill_md_path.parent.name
+        errors.extend(validate_junction_name(package_name))
+
     if errors:
         print("VALIDATION FAILED", file=sys.stderr)
         for err in errors:

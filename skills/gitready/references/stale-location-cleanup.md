@@ -95,21 +95,30 @@ Get-ChildItem -Force | Where-Object {
 
 After cleanup, create junctions pointing to the NEW package location:
 
+**IMPORTANT**: Sanitize the junction name to remove problematic characters like `@`, `?`, `*`, etc.
+These characters cause issues with slash command invocation on Windows.
+
 ```powershell
 # Junction for skill at root level (skill/SKILL.md)
 $packageName = "PACKAGE_NAME"
 $targetDir = "P:/packages/$packageName"
 
+# Sanitize junction name - remove characters that cause slash command issues
+$junctionName = $packageName -replace '[@?*:<>|+]', ''
+if ($junctionName -ne $packageName) {
+    Write-Host "NOTE: Sanitized junction name from '$packageName' to '$junctionName'"
+}
+
 # Skill at root: skill/SKILL.md -> Junction at P:/.claude/skills/PACKAGE_NAME
 if (Test-Path "$targetDir/skill/SKILL.md") {
-    New-Item -ItemType Junction -Path "P:/.claude/skills/$packageName" -Target "$targetDir/skill" -Force
-    Write-Host "Created junction: P:/.claude/skills/$packageName -> $targetDir/skill"
+    New-Item -ItemType Junction -Path "P:/.claude/skills/$junctionName" -Target "$targetDir/skill" -Force
+    Write-Host "Created junction: P:/.claude/skills/$junctionName -> $targetDir/skill"
 }
 
 # Skill in skills/ subdirectory
 if (Test-Path "$targetDir/skills/$packageName/SKILL.md") {
-    New-Item -ItemType Junction -Path "P:/.claude/skills/$packageName" -Target "$targetDir/skills/$packageName" -Force
-    Write-Host "Created junction: P:/.claude/skills/$packageName -> $targetDir/skills/$packageName"
+    New-Item -ItemType Junction -Path "P:/.claude/skills/$junctionName" -Target "$targetDir/skills/$packageName" -Force
+    Write-Host "Created junction: P:/.claude/skills/$junctionName -> $targetDir/skills/$packageName"
 }
 ```
 

@@ -7,10 +7,18 @@
 **Setup:**
 ```powershell
 # Windows (Junction - Recommended, no admin required)
-New-Item -ItemType Junction -Path "P:\.claude\skills\{{package_name}}" -Target "P:\packages\{{package_name}}\skill"
+
+# IMPORTANT: Sanitize the junction name to remove problematic characters like @, ?, *, etc.
+# These characters cause issues with slash command invocation on Windows.
+$junctionName = "{{package_name}}" -replace '[@?*:<>|+]', ''
+if ($junctionName -ne "{{package_name}}") {
+    Write-Host "NOTE: Sanitized junction name from '{{package_name}}' to '$junctionName'"
+}
+
+New-Item -ItemType Junction -Path "P:\.claude\skills\$junctionName" -Target "P:\packages\{{package_name}}\skill"
 
 # macOS/Linux (Symlink)
-ln -s /path/to/packages/{{package_name}}/skill ~/.claude/skills/{{package_name}}
+ln -s /path/to/packages/{{package_name}}/skill ~/.claude/skills/$junctionName
 ```
 
 **Key points:**
@@ -90,9 +98,19 @@ my-plugin/
 
 ```powershell
 # Example: Plugin with 3 skills
-New-Item -ItemType Junction -Path "P:\.claude\skills\skill-a" -Target "P:\packages\my-plugin\skills\skill-a"
-New-Item -ItemType Junction -Path "P:\.claude\skills\skill-b" -Target "P:\packages\my-plugin\skills\skill-b"
-New-Item -ItemType Junction -Path "P:\.claude\skills\skill-c" -Target "P:\packages\my-plugin\skills\skill-c"
+
+# IMPORTANT: Sanitize junction names - remove characters like @, ?, *, etc.
+# that cause slash command invocation issues on Windows.
+
+# For each skill:
+$skillName = "skill-a"
+$sanitizedName = $skillName -replace '[@?*:<>|+]', ''
+if ($sanitizedName -ne $skillName) {
+    Write-Host "NOTE: Sanitized '$skillName' to '$sanitizedName'"
+}
+
+New-Item -ItemType Junction -Path "P:\.claude\skills\$sanitizedName" -Target "P:\packages\my-plugin\skills\skill-a"
+# Repeat for skill-b, skill-c...
 ```
 
 **macOS/Linux equivalent:**
@@ -124,8 +142,15 @@ cmd /c "mklink hook3.py P:\packages\my-plugin\scripts\hooks\hook3.py"
 
 ```powershell
 # 1. Create junctions for skills (one per skill)
-New-Item -ItemType Junction -Path "P:\.claude\skills\skill-a" -Target "P:\packages\my-plugin\skills\skill-a"
-New-Item -ItemType Junction -Path "P:\.claude\skills\skill-b" -Target "P:\packages\my-plugin\skills\skill-b"
+# IMPORTANT: Sanitize skill names to remove problematic characters
+$skillName = "skill-a"
+$sanitized = $skillName -replace '[@?*:<>|+]', ''
+if ($sanitized -ne $skillName) {
+    Write-Host "NOTE: Sanitized '$skillName' to '$sanitized'"
+}
+New-Item -ItemType Junction -Path "P:\.claude\skills\$sanitized" -Target "P:\packages\my-plugin\skills\skill-a"
+
+# Repeat for skill-b, skill-c, etc.
 
 # 2. Create symlinks for hook files (one per file)
 cd P:/.claude/hooks

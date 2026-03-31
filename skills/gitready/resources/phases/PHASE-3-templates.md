@@ -60,13 +60,21 @@
 \`\`\`powershell
 # Windows (Junction - No admin required)
 # For plugins with skills: Junction to the skills/ subdirectory
-New-Item -ItemType Junction -Path "P:\.claude\skills\{{package_name}}" -Target "P:\packages\{{package_name}}\skills\{{package_name}}"
+
+# IMPORTANT: Sanitize the junction name to remove problematic characters like @, ?, *, etc.
+# These characters cause issues with slash command invocation on Windows.
+$junctionName = "{{package_name}}" -replace '[@?*:<>|+]', ''
+if ($junctionName -ne "{{package_name}}") {
+    Write-Host "NOTE: Sanitized junction name from '{{package_name}}' to '$junctionName'"
+}
+
+New-Item -ItemType Junction -Path "P:\.claude\skills\$junctionName" -Target "P:\packages\{{package_name}}\skills\{{package_name}}"
 
 # For standalone skills (skill/ directory): Junction to the skill/ subdirectory
-# New-Item -ItemType Junction -Path "P:\.claude\skills\{{package_name}}" -Target "P:\packages\{{package_name}}\skill"
+# New-Item -ItemType Junction -Path "P:\.claude\skills\$junctionName" -Target "P:\packages\{{package_name}}\skill"
 
 # macOS/Linux (Symlink)
-ln -s /path/to/packages/{{package_name}}/skills/{{package_name}} ~/.claude/skills/{{package_name}}
+ln -s /path/to/packages/{{package_name}}/skills/{{package_name}} ~/.claude/skills/$junctionName
 \`\`\`
 
 **Key points:**
@@ -82,6 +90,7 @@ ln -s /path/to/packages/{{package_name}}/skills/{{package_name}} ~/.claude/skill
 - The junction NAME (`{{package_name}}`) should match the skill directory name in the package
 - This ensures the skill URL (`/skill-name`) works correctly
 - Example: If package has `skills/my-skill/SKILL.md`, create junction as `P:/.claude/skills/my-skill/`
+- **CRITICAL**: Remove invalid characters (especially `@`, `?`, `*`, etc.) from the junction name before creation. These characters cause slash command invocation failures on Windows. Use the sanitization step shown above.
 - The skill's **aliases** in the frontmatter determine what users type to invoke it
 
 #### 2. HOOKS (Dev Deployment - Hook Files Only)
