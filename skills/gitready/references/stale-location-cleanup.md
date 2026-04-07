@@ -267,6 +267,21 @@ Get-ChildItem P:/.claude/hooks -Force | Where-Object { $_.LinkType -eq "Symbolic
 Get-ChildItem P:/.claude/skills -Force | Where-Object { $_.LinkType -eq "Junction" } | ForEach-Object {
     if (Test-Path $_.Target) { Write-Host "OK: $_" } else { Write-Host "STILL BROKEN: $_" }
 }
+
+# CRITICAL: Verify junction points TO packages/, not FROM packages/
+$packageName = "PACKAGE_NAME"
+$junction = "P:/.claude/skills/$packageName"
+if (Test-Path $junction) {
+    $item = Get-Item $junction
+    $target = if ($item.LinkType) { $item.Target } else { $item.FullName }
+    if ($target -notlike "P:\packages\*") {
+        Write-Host "ERROR: Junction points outside packages/ — $target"
+        Write-Host "Junction must point TO P:\packages\ not FROM it"
+        exit 1
+    } else {
+        Write-Host "OK: Junction integrity verified — $junction -> $target"
+    }
+}
 ```
 
 **CRITICAL PATH RULE:**
