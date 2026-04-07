@@ -7,6 +7,40 @@
 
 **Why this matters:** The packages directory is now the source of truth. Old canonical locations create dual implementations that cause confusion and stale code.
 
+## PRE-CHECK: Guard Against Running on Stale Locations
+
+**CRITICAL**: Before doing anything, detect if the input path is itself a stale install location:
+
+```powershell
+# If invoked against P:/.claude/skills/{name}, auto-resolve to P:/packages/{name}
+$inputPath = "P:/INVOKED_PATH"  # from gitready argument
+$skillName = Split-Path $inputPath -Leaf
+
+if ($inputPath -match "^P:/\\.claude/skills/") {
+    Write-Host "WARNING: gitready was invoked on an installed skill location."
+    Write-Host "The source of truth should be at P:/packages/$skillName"
+    Write-Host ""
+    Write-Host "Auto-resolving to source location..."
+    $resolvedSource = "P:/packages/$skillName"
+    if (-not (Test-Path $resolvedSource)) {
+        Write-Host "ERROR: No package found at $resolvedSource"
+        Write-Host "Move the files first: cp -r $inputPath/* $resolvedSource/"
+        exit 1
+    }
+    $TARGET_DIR = $resolvedSource
+} else {
+    $TARGET_DIR = $inputPath
+}
+```
+
+**If the source does NOT exist at `P:/packages/{name}`**:
+1. Copy files to the packages location: `cp -r {INPUT_PATH}/* P:/packages/{name}/`
+2. Remove the stale install location
+3. Create the junction at `P:/.claude/skills/{name}` → `P:/packages/{name}`
+4. Continue with gitready using the packages path as `TARGET_DIR`
+
+**Rule: Never gitready a stale location without migrating to packages first.**
+
 ## Step 1: Detect Package Contents
 
 ```powershell
