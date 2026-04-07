@@ -107,6 +107,33 @@ One command runs the full intelligent pipeline:
 
 ---
 
+## PRE-CHECK: Stale Location Guard (Always Runs First)
+
+**Before any phase is selected**, detect and resolve stale install locations:
+
+```bash
+TARGET_DIR="$1"  # from gitready argument
+SKILL_NAME=$(basename "$TARGET_DIR")
+
+# Detect if pointing at old canonical install location
+if [[ "$TARGET_DIR" == "P:/.claude/skills/"* ]]; then
+    echo "WARNING: gitready was invoked on an installed skill location."
+    echo "The source of truth should be at P:/packages/$SKILL_NAME"
+    if [ -d "P:/packages/$SKILL_NAME" ]; then
+        echo "Auto-resolving to source location..."
+        TARGET_DIR="P:/packages/$SKILL_NAME"
+    else
+        echo "ERROR: No package found at P:/packages/$SKILL_NAME"
+        echo "Migration needed: cp -r $TARGET_DIR/* P:/packages/$SKILL_NAME/"
+        exit 1
+    fi
+fi
+```
+
+**Why**: gitready must always process the **packages source of truth**, never an installed junction location. Processing the stale location creates dual implementations that cause confusion and stale code.
+
+---
+
 ## PHASE 0: Dry Run Preview (Optional)
 
 **Trigger**: `--dry-run` flag. Shows directory structure, files to create, and next steps. No files written.
