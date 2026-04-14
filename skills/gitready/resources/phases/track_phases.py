@@ -138,7 +138,8 @@ def get_auto_skip_reasons(target_dir: Path) -> dict[str, str]:
 def print_status_report(target_dir: Path, changelog_path: Path | None) -> None:
     """Print full phase status report."""
     pkg_type = get_package_type(target_dir)
-    print(f"\n=== gitready Status: {target_dir.name} ===")
+    resolved = target_dir.resolve()
+    print(f"\n=== gitready Status: {resolved} ===")
     print(f"Package type: {pkg_type or 'unknown'}\n")
 
     if changelog_path is None or not changelog_path.exists():
