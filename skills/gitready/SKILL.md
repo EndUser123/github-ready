@@ -149,10 +149,17 @@ python resources/phases/validate_pointers.py
 ```
 Validates all bundled-resource pointers resolve to existing, non-empty files. Stop and fix broken pointers before continuing.
 
+**Read completed phases** (from target's `references/changelog.md`):
+```bash
+python resources/phases/track_phases.py {{TARGET_DIR}} --read
+```
+Reports which phases already completed; skips phases marked `-- COMPLETED` or `-- SKIPPED`.
+
 **Steps**:
 1. Check existing structure: `tree {{TARGET_DIR}} -a -L 3`
 2. Clear state files: `rm -f {{TARGET_DIR}}/.claude/state*.json`
 3. Check for existing modules: `ls {{TARGET_DIR}}/src/`
+4. **Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1`
 
 **Output**: "Prep complete. Modules: [Y/N]. State cleared."
 
@@ -163,6 +170,8 @@ Validates all bundled-resource pointers resolve to existing, non-empty files. St
 > See `references/package-type-detection.md` for full detection script and package type table.
 
 Auto-detects package type. Python libraries with `src/` + `pyproject.toml` auto-convert to `brownfield-plugin`.
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1.5`
 
 ---
 
@@ -179,6 +188,9 @@ Auto-detects package type. Python libraries with `src/` + `pyproject.toml` auto-
 
 **Rollback**: Backup at `.backup/`. To rollback: `cp -r .backup/* . && rm -rf scripts/ .claude-plugin/`
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1.6 --status SKIPPED`
+*(If not brownfield-plugin, this phase is N/A — track as SKIPPED, not COMPLETED)*
+
 ---
 
 ## PHASE 1.6.5: Intentional Exception Registry (Auto-invoked)
@@ -186,6 +198,8 @@ Auto-detects package type. Python libraries with `src/` + `pyproject.toml` auto-
 > See `references/exception-registry.md` for full 4-step workflow.
 
 Documents known deviations from plugin standards in `.gitready/exceptions.json` so gitready stops repeatedly flagging them.
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1.6.5`
 
 ---
 
@@ -196,6 +210,8 @@ Documents known deviations from plugin standards in `.gitready/exceptions.json` 
 
 Validates plugin files/folders against Claude Code plugin standards. Exception-aware: skips waived violations from `.gitready/exceptions.json`.
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1.7`
+
 ---
 
 ## PHASE 1.8: Stale Location Cleanup and Junction/Symlink Setup (Auto-invoked)
@@ -203,6 +219,8 @@ Validates plugin files/folders against Claude Code plugin standards. Exception-a
 > See `references/stale-location-cleanup.md` for full 8-step workflow.
 
 Cleans old canonical locations, creates proper junctions/symlinks pointing to `P:/packages/` source of truth.
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 1.8`
 
 ---
 
@@ -214,17 +232,23 @@ Creates directory structure based on detected package type. Claude skills get `s
 
 **Local Development Setup**: See `references/deployment-models.md` for junction/symlink setup, multiple skills/hooks patterns, and cleanup after relocation.
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 2`
+
 ---
 
 ## PHASE 3: Generate Templates
 
 > READ: `resources/phases/PHASE-3-templates.md`
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 3`
+
 ---
 
 ## PHASE 4: Validate (1min)
 
 > See `references/validation-scripts.md` for platform compatibility checks, symlink tests, pytest collect, and tree diff.
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 4`
 
 ---
 
@@ -234,17 +258,33 @@ Creates directory structure based on detected package type. Claude skills get `s
 
 Runs code-review plugin (security, performance, maintainability) and meta-review (path traversal, import graph, doc consistency). Critical findings must be fixed before PHASE 5.
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.5`
+
 ---
 
 ## PHASE 4.7: Media Generation (Auto-invoked)
 
 > READ: `resources/phases/PHASE-4.7-media-gen.md`
 
+Requires NotebookLM auth. If auth is not available, track as SKIPPED:
+```
+python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.7 --status SKIPPED
+```
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.7`
+
 ---
 
 ## PHASE 4.8: Interactive Course (Auto-invoked)
 
 > READ: `resources/phases/PHASE-4.8-interactive-course.md`
+
+Requires NotebookLM auth. If auth is not available, track as SKIPPED:
+```
+python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.8 --status SKIPPED
+```
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.8`
 
 ---
 
@@ -256,6 +296,8 @@ Runs code-review plugin (security, performance, maintainability) and meta-review
 - **Architecture flowchart**: GitHub-safe Mermaid in README.md
 - **Video playback**: `docs/video.html` for GitHub Pages
 - **Quick Start**: Installation and usage examples
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 5`
 
 ---
 
@@ -279,6 +321,13 @@ Runs code-review plugin (security, performance, maintainability) and meta-review
 python resources/create_github_repo_api.py my-package "Description here"
 ```
 
+If `--publish` flag is not provided, track as SKIPPED:
+```
+python resources/phases/track_phases.py {{TARGET_DIR}} --write 6 --status SKIPPED
+```
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 6`
+
 ---
 
 ## PHASE 7: Repository Finalization (Optional)
@@ -286,6 +335,13 @@ python resources/create_github_repo_api.py my-package "Description here"
 > See `references/advanced-phases.md` for details and options.
 
 **Trigger**: `--finalize` flag. Enables GitHub Pages, creates initial release, adds topics/tags, generates CODEOWNERS and SECURITY.md.
+
+If `--finalize` flag is not provided, track as SKIPPED:
+```
+python resources/phases/track_phases.py {{TARGET_DIR}} --write 7 --status SKIPPED
+```
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 7`
 
 ---
 
@@ -295,17 +351,23 @@ python resources/create_github_repo_api.py my-package "Description here"
 
 **Trigger**: `--scan-quality` flag. Security scanning (bandit, safety), dependency auditing (pip-audit), badge validation, quality metrics.
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 4.6`
+
 ---
 
 ## PHASE 8: Cleanup (Auto-invoked)
 
 Detects and reports obsolete files: backup files (`*.backup-*`, `*.old`, `*.bak`), orphaned test files, obsolete documentation, duplicate implementations. Output: `CLEANUP_REPORT.md` with categorized removal commands.
 
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 8`
+
 ---
 
 ## PHASE 9: Git Ready (Auto-invoked)
 
 Initialize git repo (if not already): `git init`, add all files, initial commit, set main branch. Skips if `.git/` exists.
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 9`
 
 ---
 
@@ -315,6 +377,8 @@ Initialize git repo (if not already): `git init`, add all files, initial commit,
 **Scoring**: 90-100 (Excellent), 70-89 (Good), 50-69 (Fair), <50 (Poor).
 **Auto-fixes**: Remove TODOs, move plans to `docs/planning/`, bump version.
 **Output**: `RECRUITER_READINESS_REPORT.md`
+
+**Track completion**: `python resources/phases/track_phases.py {{TARGET_DIR}} --write 10`
 
 ---
 
